@@ -51,7 +51,8 @@
 
     if (!mochaInstance) {
       throw new Error(
-        'Mocha was not found, make sure you include Mocha in your HTML ' + 'spec file.',
+        'Mocha was not found, make sure you include Mocha in your HTML ' +
+          'spec file.',
       );
     }
 
@@ -112,4 +113,4 @@
     mocha.ui('bdd');
     mocha.reporter('html');
   }
-}());
+})();

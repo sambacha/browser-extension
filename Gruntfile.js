@@ -7,7 +7,6 @@
  */
 module.exports = function (grunt) {
   grunt.initConfig({
-
     // ----------
     // Processing
     // ----------
@@ -60,45 +59,89 @@ module.exports = function (grunt) {
       chrome: {
         files: [
           {
-            expand: true, flatten: true, src: ['icons/*'], dest: 'tmp/chrome/icons/', filter: 'isFile',
+            expand: true,
+            flatten: true,
+            src: ['icons/*'],
+            dest: 'tmp/chrome/icons/',
+            filter: 'isFile',
           },
           {
-            expand: true, flatten: true, src: ['lib/*'], dest: 'tmp/chrome/lib',
+            expand: true,
+            flatten: true,
+            src: ['lib/*'],
+            dest: 'tmp/chrome/lib',
           },
           {
-            expand: true, flatten: true, src: ['src/chrome/options.*'], dest: 'tmp/chrome/lib',
+            expand: true,
+            flatten: true,
+            src: ['src/chrome/options.*'],
+            dest: 'tmp/chrome/lib',
           },
           {
-            expand: true, flatten: true, src: ['src/chrome/listener.js'], dest: 'tmp/chrome/lib',
+            expand: true,
+            flatten: true,
+            src: ['src/chrome/listener.js'],
+            dest: 'tmp/chrome/lib',
           },
           {
-            expand: true, flatten: true, src: ['src/chrome/manifest.json'], dest: './tmp/chrome/',
+            expand: true,
+            flatten: true,
+            src: ['src/chrome/manifest.json'],
+            dest: './tmp/chrome/',
           },
         ],
       },
       firefox: {
         files: [
           {
-            expand: true, flatten: true, src: ['icons/*'], dest: 'tmp/firefox/data/icons/', filter: 'isFile',
+            expand: true,
+            flatten: true,
+            src: ['icons/*'],
+            dest: 'tmp/firefox/data/icons/',
+            filter: 'isFile',
           },
           {
-            expand: true, flatten: true, src: ['lib/jquery-2.1.3.min.js', 'lib/codecov.js', 'lib/codecov.css'], dest: 'tmp/firefox/data',
+            expand: true,
+            flatten: true,
+            src: [
+              'lib/jquery-2.1.3.min.js',
+              'lib/codecov.js',
+              'lib/codecov.css',
+            ],
+            dest: 'tmp/firefox/data',
           },
           {
-            expand: true, flatten: true, src: ['src/firefox/index.js'], dest: 'tmp/firefox',
+            expand: true,
+            flatten: true,
+            src: ['src/firefox/index.js'],
+            dest: 'tmp/firefox',
           },
           {
-            expand: true, flatten: true, src: ['src/firefox/package.json'], dest: './tmp/firefox/',
+            expand: true,
+            flatten: true,
+            src: ['src/firefox/package.json'],
+            dest: './tmp/firefox/',
           },
         ],
       },
       safari: {
         files: [
           {
-            expand: true, flatten: true, src: ['icons/*'], dest: 'tmp/safari/codecov.safariextension/icons', filter: 'isFile',
+            expand: true,
+            flatten: true,
+            src: ['icons/*'],
+            dest: 'tmp/safari/codecov.safariextension/icons',
+            filter: 'isFile',
           },
           {
-            expand: true, flatten: true, src: ['lib/jquery-2.1.3.min.js', 'lib/codecov.js', 'lib/codecov.css'], dest: 'tmp/safari/codecov.safariextension',
+            expand: true,
+            flatten: true,
+            src: [
+              'lib/jquery-2.1.3.min.js',
+              'lib/codecov.js',
+              'lib/codecov.css',
+            ],
+            dest: 'tmp/safari/codecov.safariextension',
           },
         ],
       },
@@ -106,13 +149,28 @@ module.exports = function (grunt) {
 
     concat: {
       chrome: {
-        files: { 'tmp/chrome/lib/codecov.js': ['src/chrome/chrome.js', 'tmp/chrome/lib/codecov.js'] },
+        files: {
+          'tmp/chrome/lib/codecov.js': [
+            'src/chrome/chrome.js',
+            'tmp/chrome/lib/codecov.js',
+          ],
+        },
       },
       firefox: {
-        files: { 'tmp/firefox/data/codecov.js': ['src/firefox/firefox.js', 'tmp/firefox/data/codecov.js'] },
+        files: {
+          'tmp/firefox/data/codecov.js': [
+            'src/firefox/firefox.js',
+            'tmp/firefox/data/codecov.js',
+          ],
+        },
       },
       safari: {
-        files: { 'tmp/safari/codecov.safariextension/codecov.js': ['src/safari/safari.js', 'tmp/safari/codecov.safariextension/codecov.js'] },
+        files: {
+          'tmp/safari/codecov.safariextension/codecov.js': [
+            'src/safari/safari.js',
+            'tmp/safari/codecov.safariextension/codecov.js',
+          ],
+        },
       },
     },
 
@@ -160,7 +218,12 @@ module.exports = function (grunt) {
               try {
                 fs.mkdirSync(`coverage/${req.url.slice(1)}`);
               } catch (error1) {}
-              return req.on('data', (json) => fs.writeFileSync(`coverage/${req.url.slice(1)}/coverage.json`, json.toString()));
+              return req.on('data', (json) =>
+                fs.writeFileSync(
+                  `coverage/${req.url.slice(1)}/coverage.json`,
+                  json.toString(),
+                ),
+              );
             },
           ],
         },
@@ -169,28 +232,40 @@ module.exports = function (grunt) {
 
     curl: {
       // Github
-      'test/github/test_pull.html': 'https://github.com/codecov/codecov-python/pull/16/files',
-      'test/github/test_blob.html': 'https://github.com/codecov/codecov-python/blob/097f692a0f02649a80de6c98749ca32a126223fc/codecov/clover.py',
-      'test/github/test_tree.html': 'https://github.com/codecov/codecov-python/tree/097f692a0f02649a80de6c98749ca32a126223fc/codecov',
-      'test/github/test_blame.html': 'https://github.com/codecov/codecov-python/blame/097f692a0f02649a80de6c98749ca32a126223fc/codecov/clover.py',
-      'test/github/test_compare.html': 'https://github.com/codecov/codecov-python/compare/codecov:21dcc07...codecov:4c95614',
-      'test/github/test_compare_split.html': 'https://github.com/codecov/codecov-python/compare/codecov:21dcc07...codecov:4c95614?diff=split',
-      'test/github/test_commit.html': 'https://github.com/codecov/codecov-python/commit/91acfd99a5103ab16ff183a117a76c0d492c68a7',
+      'test/github/test_pull.html':
+        'https://github.com/codecov/codecov-python/pull/16/files',
+      'test/github/test_blob.html':
+        'https://github.com/codecov/codecov-python/blob/097f692a0f02649a80de6c98749ca32a126223fc/codecov/clover.py',
+      'test/github/test_tree.html':
+        'https://github.com/codecov/codecov-python/tree/097f692a0f02649a80de6c98749ca32a126223fc/codecov',
+      'test/github/test_blame.html':
+        'https://github.com/codecov/codecov-python/blame/097f692a0f02649a80de6c98749ca32a126223fc/codecov/clover.py',
+      'test/github/test_compare.html':
+        'https://github.com/codecov/codecov-python/compare/codecov:21dcc07...codecov:4c95614',
+      'test/github/test_compare_split.html':
+        'https://github.com/codecov/codecov-python/compare/codecov:21dcc07...codecov:4c95614?diff=split',
+      'test/github/test_commit.html':
+        'https://github.com/codecov/codecov-python/commit/91acfd99a5103ab16ff183a117a76c0d492c68a7',
       // Bitbucket
-      'test/bitbucket/test_src.html': 'https://bitbucket.org/osallou/go-docker/src/8c304f3171716b23f78dc6c1f6541b290a43386b/godocker/godscheduler.py',
-      'test/bitbucket/test_commits.html': 'https://bitbucket.org/osallou/go-docker/commits/33a5c94583baf1fcc98db2c295c97283255163c1',
-      'test/bitbucket/test_tree.html': 'https://bitbucket.org/osallou/go-docker/src/8c304f3171716b23f78dc6c1f6541b290a43386b/godocker/?at=master',
+      'test/bitbucket/test_src.html':
+        'https://bitbucket.org/osallou/go-docker/src/8c304f3171716b23f78dc6c1f6541b290a43386b/godocker/godscheduler.py',
+      'test/bitbucket/test_commits.html':
+        'https://bitbucket.org/osallou/go-docker/commits/33a5c94583baf1fcc98db2c295c97283255163c1',
+      'test/bitbucket/test_tree.html':
+        'https://bitbucket.org/osallou/go-docker/src/8c304f3171716b23f78dc6c1f6541b290a43386b/godocker/?at=master',
     },
     // Gitlab
 
     dom_munger: {
-      all: { // excuted first
+      all: {
+        // excuted first
         src: 'test/**/*.html',
         options: {
           remove: ['link', 'script'],
           prepend: { selector: 'body', html: '<div id="mocha"></div>' },
           append: {
-            selector: 'head', html: `<link rel="stylesheet" href="../mocha.css" />
+            selector: 'head',
+            html: `<link rel="stylesheet" href="../mocha.css" />
 <script src="../mocha.js"></script>
 <script src="../chai.js"></script>
 <script src="../bridge.js"></script>
@@ -202,16 +277,88 @@ module.exports = function (grunt) {
           },
         },
       },
-      github_blob: { src: 'test/github/test_blob.html', options: { append: { selector: 'body', html: '<script src="test_blob.js"></script>' } } },
-      github_pull: { src: 'test/github/test_pull.html', options: { append: { selector: 'body', html: '<script src="test_pull.js"></script>' } } },
-      github_tree: { src: 'test/github/test_tree.html', options: { append: { selector: 'body', html: '<script src="test_tree.js"></script>' } } },
-      github_blame: { src: 'test/github/test_blame.html', options: { append: { selector: 'body', html: '<script src="test_blame.js"></script>' } } },
-      github_compare: { src: 'test/github/test_compare.html', options: { append: { selector: 'body', html: '<script src="test_compare.js"></script>' } } },
-      github_compare_split: { src: 'test/github/test_compare_split.html', options: { append: { selector: 'body', html: '<script src="test_compare_split.js"></script>' } } },
-      github_commit: { src: 'test/github/test_commit.html', options: { append: { selector: 'body', html: '<script src="test_commit.js"></script>' } } },
+      github_blob: {
+        src: 'test/github/test_blob.html',
+        options: {
+          append: {
+            selector: 'body',
+            html: '<script src="test_blob.js"></script>',
+          },
+        },
+      },
+      github_pull: {
+        src: 'test/github/test_pull.html',
+        options: {
+          append: {
+            selector: 'body',
+            html: '<script src="test_pull.js"></script>',
+          },
+        },
+      },
+      github_tree: {
+        src: 'test/github/test_tree.html',
+        options: {
+          append: {
+            selector: 'body',
+            html: '<script src="test_tree.js"></script>',
+          },
+        },
+      },
+      github_blame: {
+        src: 'test/github/test_blame.html',
+        options: {
+          append: {
+            selector: 'body',
+            html: '<script src="test_blame.js"></script>',
+          },
+        },
+      },
+      github_compare: {
+        src: 'test/github/test_compare.html',
+        options: {
+          append: {
+            selector: 'body',
+            html: '<script src="test_compare.js"></script>',
+          },
+        },
+      },
+      github_compare_split: {
+        src: 'test/github/test_compare_split.html',
+        options: {
+          append: {
+            selector: 'body',
+            html: '<script src="test_compare_split.js"></script>',
+          },
+        },
+      },
+      github_commit: {
+        src: 'test/github/test_commit.html',
+        options: {
+          append: {
+            selector: 'body',
+            html: '<script src="test_commit.js"></script>',
+          },
+        },
+      },
 
-      bitbucket_src: { src: 'test/bitbucket/test_src.html', options: { append: { selector: 'body', html: '<script src="test_src.js"></script>' } } },
-      bitbucket_tree: { src: 'test/bitbucket/test_tree.html', options: { append: { selector: 'body', html: '<script src="test_tree.js"></script>' } } },
+      bitbucket_src: {
+        src: 'test/bitbucket/test_src.html',
+        options: {
+          append: {
+            selector: 'body',
+            html: '<script src="test_src.js"></script>',
+          },
+        },
+      },
+      bitbucket_tree: {
+        src: 'test/bitbucket/test_tree.html',
+        options: {
+          append: {
+            selector: 'body',
+            html: '<script src="test_tree.js"></script>',
+          },
+        },
+      },
     },
 
     mocha: {

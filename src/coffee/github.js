@@ -10,44 +10,68 @@
  */
 window.Github = class Github extends Codecov {
   get_ref(href) {
-    let from; let split; let
-      to;
+    let from;
+    let split;
+    let to;
 
-    this.service = (window.location.hostname === 'github.com') || (this.settings.debug_url != null) ? 'gh' : 'ghe';
+    this.service =
+      window.location.hostname === 'github.com' ||
+      this.settings.debug_url != null
+        ? 'gh'
+        : 'ghe';
     this.file = null;
     if (['releases', 'tags'].includes(this.page)) {
       // planned
       return false;
-    } if (this.page === 'commit') {
+    }
+    if (this.page === 'commit') {
       // https://github.com/codecov/codecov-python/commit/b0a3eef1c9c456e1794c503aacaff660a1a197aa
       return href[6];
-    } if (this.page === 'commits') {
+    }
+    if (this.page === 'commits') {
       // https://github.com/codecov/codecov-python/commits
       // https://github.com/codecov/codecov-python/commits/master
       to = $('li.commit:first a:last').attr('href').split('/')[4];
       from = $('li.commit:last a:last').attr('href').split('/')[4];
-      return `branch/${href[6] || $('.branch-select-menu .js-select-button').text()}/commits?start=${from}&stop=${to}`;
-    } if (href[7] === 'commits') {
+      return `branch/${
+        href[6] || $('.branch-select-menu .js-select-button').text()
+      }/commits?start=${from}&stop=${to}`;
+    }
+    if (href[7] === 'commits') {
       // https://github.com/codecov/codecov.io/pull/213/commits
       this.page = 'commits';
       to = $('li.commit:first a:last').attr('href').split('/')[4];
       from = $('li.commit:last a:last').attr('href').split('/')[4];
       return `pull/${href[6]}/commits?start=${from}&stop=${to}`;
-    } if (['blob', 'blame'].includes(this.page)) {
+    }
+    if (['blob', 'blame'].includes(this.page)) {
       // https://github.com/codecov/codecov-python/blob/master/codecov/clover.py
       // https://github.com/codecov/codecov-python/blob/4c95614d2aa78a74171f81fc4bf2c16a6d8b1cb5/codecov/clover.py
       split = $('a[data-hotkey=y]').attr('href').split('/');
       this.file = `${split.slice(5).join('/')}`;
       return split[4];
-    } if (this.page === 'compare') {
+    }
+    if (this.page === 'compare') {
       // https://github.com/codecov/codecov-python/compare/v1.1.5...v1.1.6
-      this.base = `${$('.commit-id:first').text() || $('input[name=comparison_start_oid]').val()}`;
-      return $('.commit-id:last').text() || $('input[name=comparison_end_oid]').val();
-    } if (this.page === 'pull') {
+      this.base = `${
+        $('.commit-id:first').text() ||
+        $('input[name=comparison_start_oid]').val()
+      }`;
+      return (
+        $('.commit-id:last').text() || $('input[name=comparison_end_oid]').val()
+      );
+    }
+    if (this.page === 'pull') {
       // https://github.com/codecov/codecov-python/pull/16/files
-      this.base = `${$('.commit-id:first').text() || $('input[name=comparison_start_oid]').val()}`;
-      return $('.commit-id:last').text() || $('input[name=comparison_end_oid]').val();
-    } if (this.page === 'tree') {
+      this.base = `${
+        $('.commit-id:first').text() ||
+        $('input[name=comparison_start_oid]').val()
+      }`;
+      return (
+        $('.commit-id:last').text() || $('input[name=comparison_end_oid]').val()
+      );
+    }
+    if (this.page === 'tree') {
       return $('.js-permalink-shortcut').attr('href').split('/')[4];
     }
     // no coverage overlay
@@ -68,10 +92,13 @@ window.Github = class Github extends Codecov {
         }
         return file
           .find('.file-actions > .BtnGroup')
-          .prepend(`<a class="btn BtnGroup-item btn-sm codecov disabled tooltipped tooltipped-n"
+          .prepend(
+            `<a class="btn BtnGroup-item btn-sm codecov disabled tooltipped tooltipped-n"
 aria-label="Requesting coverage from Codecov.io"
-data-hotkey="c">Coverage loading...</a>`)
-          .find('.btn').addClass('BtnGroup-item');
+data-hotkey="c">Coverage loading...</a>`,
+          )
+          .find('.btn')
+          .addClass('BtnGroup-item');
       }
     });
 
@@ -93,26 +120,42 @@ data-hotkey="c">Coverage loading...</a>`)
         commits[c.commitid] = c;
       }
 
-      const base_url = `${self.settings.urls[self.urlid]}/${self.service}/${self.slug}/commit`;
+      const base_url = `${self.settings.urls[self.urlid]}/${self.service}/${
+        self.slug
+      }/commit`;
 
       return $('li.commit').each(function () {
         const $commit = $(this);
-        const commit = commits[$commit.find('a:last').attr('href').split('/')[4]];
+        const commit =
+          commits[$commit.find('a:last').attr('href').split('/')[4]];
 
         console.log($commit.find('a:last').attr('href').split('/')[4], commit);
-        if (__guard__(commit != null ? commit.totals : undefined, (x) => x.c) != null) {
+        if (
+          __guard__(commit != null ? commit.totals : undefined, (x) => x.c) !=
+          null
+        ) {
           return $commit
             .find('.commit-meta.commit-author-section')
-            .append(`<a title="Codecov Coverage" href="${base_url}/${commit.commitid}">${self.format(commit.totals.c)}%</a>`);
+            .append(
+              `<a title="Codecov Coverage" href="${base_url}/${
+                commit.commitid
+              }">${self.format(commit.totals.c)}%</a>`,
+            );
         }
       });
     }
     // v4/commits or v4/compare or v3/commit&compare
     let total;
-    const report = (res.commit != null ? res.commit.report : undefined) || (res.head != null ? res.head.report : undefined) || res.report;
+    const report =
+      (res.commit != null ? res.commit.report : undefined) ||
+      (res.head != null ? res.head.report : undefined) ||
+      res.report;
 
     if (this.page === 'tree') {
-      total = ((report.totals != null ? report.totals.c : undefined) != null) ? report.totals.c : report.coverage; // v4 || v3
+      total =
+        (report.totals != null ? report.totals.c : undefined) != null
+          ? report.totals.c
+          : report.coverage; // v4 || v3
       $('.commit-tease span.right').append(`\
 <a href="${this.settings.urls[this.urlid]}/github/${this.slug}?ref=${this.ref}"
    class="sha-block codecov codecov-removable tooltipped tooltipped-n"
@@ -120,25 +163,40 @@ data-hotkey="c">Coverage loading...</a>`)
   ${self.format(total)}%
 </a>`);
       return $('.file-wrap tr:not(.warning):not(.up-tree)').each(function () {
-        const filepath = __guard__($('td.content a', this).attr('href'), (x) => x.split('/')).slice(5).join('/');
+        const filepath = __guard__($('td.content a', this).attr('href'), (x) =>
+          x.split('/'),
+        )
+          .slice(5)
+          .join('/');
 
         if (filepath) {
-          const file = report.files != null ? report.files[filepath] : undefined;
+          const file =
+            report.files != null ? report.files[filepath] : undefined;
 
           if (file != null) {
             if (file != null ? file.ignored : undefined) {
               return;
             } // v4 or (v3)
-            const cov = ((file.t != null ? file.t.c : undefined) != null) ? file.t.c : file.coverage; // v4 || v3
+            const cov =
+              (file.t != null ? file.t.c : undefined) != null
+                ? file.t.c
+                : file.coverage; // v4 || v3
 
             if (cov != null) {
-              const path = ((file.t != null ? file.t.c : undefined) != null) ? `src/${self.ref}/${filepath}` : `${filepath}?ref=${self.ref}`; // v4 || v3
+              const path =
+                (file.t != null ? file.t.c : undefined) != null
+                  ? `src/${self.ref}/${filepath}`
+                  : `${filepath}?ref=${self.ref}`; // v4 || v3
 
               return $('td:last', this).after(`\
-<td style="background:linear-gradient(90deg, ${self.bg(cov)} ${cov}%, white ${cov}%);text-align:right;"
+<td style="background:linear-gradient(90deg, ${self.bg(
+                cov,
+              )} ${cov}%, white ${cov}%);text-align:right;"
     class="sha codecov codecov-removable tooltipped tooltipped-n"
     aria-label="Codecov Coverage">
-  <a href="${self.settings.urls[self.urlid]}/${self.service}/${self.slug}/${path}">
+  <a href="${self.settings.urls[self.urlid]}/${self.service}/${
+                self.slug
+              }/${path}">
     ${self.format(cov)}%
   </a>
 </td>`);
@@ -153,8 +211,11 @@ data-hotkey="c">Coverage loading...</a>`)
     let _td;
 
     if (['commit', 'compare', 'pull'].includes(this.page)) {
-      $('.toc-diff-stats, .diffbar-item.diffstat, #diffstat')
-        .append(`<span class="codecov codecov-removable"> <strong>${self.format(report.totals.c)}%</strong></span>`);
+      $('.toc-diff-stats, .diffbar-item.diffstat, #diffstat').append(
+        `<span class="codecov codecov-removable"> <strong>${self.format(
+          report.totals.c,
+        )}%</strong></span>`,
+      );
     }
 
     self = this;
@@ -193,28 +254,52 @@ data-hotkey="c">Coverage loading...</a>`)
 
         // report coverage
         // ===============
-        if ((file_data != null) && ((file_data != null ? file_data.ignored : undefined) !== true)) {
-          total = self.format(((file_data.t != null ? file_data.t.c : undefined) != null) ? file_data.t.c : file_data.coverage);
-          const button = file.find('.btn.codecov')
-            .attr('aria-label', 'Toggle Codecov (c), alt+click to open in Codecov')
-            .attr('data-codecov-url',
+        if (
+          file_data != null &&
+          (file_data != null ? file_data.ignored : undefined) !== true
+        ) {
+          total = self.format(
+            (file_data.t != null ? file_data.t.c : undefined) != null
+              ? file_data.t.c
+              : file_data.coverage,
+          );
+          const button = file
+            .find('.btn.codecov')
+            .attr(
+              'aria-label',
+              'Toggle Codecov (c), alt+click to open in Codecov',
+            )
+            .attr(
+              'data-codecov-url',
               `${self.settings.urls[self.urlid]}/${self.service}/${self.slug}/${
-                ((file_data.t != null ? file_data.t.c : undefined) != null) // v4
+                (file_data.t != null ? file_data.t.c : undefined) != null // v4
                   ? `src/${self.ref}/${fp}` // v3
-                  : `${fp}?ref=${self.ref}`}`)
+                  : `${fp}?ref=${self.ref}`
+              }`,
+            )
             .text(`${total}%`)
             .removeClass('disabled')
             .unbind()
-            .click(['blob', 'blame'].includes(self.page) ? self.toggle_coverage : self.toggle_diff);
+            .click(
+              ['blob', 'blame'].includes(self.page)
+                ? self.toggle_coverage
+                : self.toggle_diff,
+            );
 
           // overlay coverage
           let hits = 0;
           let lines = 0;
-          const file_lines = (file_data.l != null) ? file_data.l : file_data.lines;
+          const file_lines =
+            file_data.l != null ? file_data.l : file_data.lines;
 
           file.find('tr').each(function () {
             const td = $(_td, this);
-            const cov = self.color(file_lines[td.attr('data-line-number') || (__guard__(td.attr('id'), (x) => x.slice(1)))]);
+            const cov = self.color(
+              file_lines[
+                td.attr('data-line-number') ||
+                  __guard__(td.attr('id'), (x) => x.slice(1))
+              ],
+            );
 
             if (cov) {
               if (split_view) {
@@ -231,7 +316,7 @@ data-hotkey="c">Coverage loading...</a>`)
               if ($('.blob-num-addition', this).length > 0) {
                 lines += 1;
                 if (cov === 'hit') {
-                  return hits += 1;
+                  return (hits += 1);
                 }
               }
             }
@@ -246,14 +331,17 @@ data-hotkey="c">Coverage loading...</a>`)
             button.text(`Coverage ${total}% (Diff ${diff}%)`);
             // pull view
             if (self.page === 'pull') {
-              $(`a[href="#${file.prev().attr('name')}"] .diffstat`)
-                .prepend(`<span class="codecov codecov-removable">${total}% <strong>(${diff}%)</strong></span>`);
+              $(`a[href="#${file.prev().attr('name')}"] .diffstat`).prepend(
+                `<span class="codecov codecov-removable">${total}% <strong>(${diff}%)</strong></span>`,
+              );
             } else {
               // compare view
               $(`a[href="#${file.prev().attr('name')}"]`)
                 .parent()
                 .find('.diffstat')
-                .prepend(`<span class="codecov codecov-removable">${total}% <strong>(${diff}%)</strong></span>`);
+                .prepend(
+                  `<span class="codecov codecov-removable">${total}% <strong>(${diff}%)</strong></span>`,
+                );
             }
           }
 
@@ -261,7 +349,10 @@ data-hotkey="c">Coverage loading...</a>`)
           if (self.settings.overlay && ['blob', 'blame'].includes(self.page)) {
             return button.trigger('click');
           }
-        } else if ((file_data != null ? file_data.ignored : undefined) === true) { // v3
+        } else if (
+          (file_data != null ? file_data.ignored : undefined) === true
+        ) {
+          // v3
           return file
             .find('.btn.codecov')
             .attr('aria-label', 'File ignored')
@@ -279,14 +370,20 @@ data-hotkey="c">Coverage loading...</a>`)
       // upate toc-diff-stats
       return $('.toc-diff-stats, .diffbar-item.diffstat, #diffstat')
         .find('.codecov')
-        .append(` (Diff <strong>${self.ratio(total_hits, total_lines)}%</strong>)</span>`);
+        .append(
+          ` (Diff <strong>${self.ratio(
+            total_hits,
+            total_lines,
+          )}%</strong>)</span>`,
+        );
     }
   }
 
   toggle_coverage(e) {
     if (e.shiftKey) {
-      return window.location = $(this).attr('data-codecov-url');
-    } if ($('.codecov.codecov-on:first').length === 0) {
+      return (window.location = $(this).attr('data-codecov-url'));
+    }
+    if ($('.codecov.codecov-on:first').length === 0) {
       $('.codecov').addClass('codecov-on');
       return $(this).addClass('selected');
     }
@@ -336,13 +433,24 @@ data-hotkey="c">Coverage loading...</a>`)
         .text('Please login at Codecov')
         .addClass('danger')
         .attr('aria-label', 'Login to view coverage by Codecov')
-        .click(() => window.location = `${self.settings.urls[self.urlid]}/login/github?redirect=${escape(window.location.href)}`);
+        .click(
+          () =>
+            (window.location = `${
+              self.settings.urls[self.urlid]
+            }/login/github?redirect=${escape(window.location.href)}`),
+        );
       return $('.commit.codecov .sha-block')
         .addClass('tooltipped tooltipped-n')
         .text('Please login into Codecov')
         .attr('aria-label', 'Login to view coverage by Codecov')
-        .click(() => window.location = `${self.settings.urls[self.urlid]}/login/github?redirect=${escape(window.location.href)}`);
-    } if (status === 404) {
+        .click(
+          () =>
+            (window.location = `${
+              self.settings.urls[self.urlid]
+            }/login/github?redirect=${escape(window.location.href)}`),
+        );
+    }
+    if (status === 404) {
       $('.btn.codecov')
         .text('No coverage')
         .attr('aria-label', 'Coverage not found');
@@ -362,5 +470,7 @@ data-hotkey="c">Coverage loading...</a>`)
 };
 
 function __guard__(value, transform) {
-  return (typeof value !== 'undefined' && value !== null) ? transform(value) : undefined;
+  return typeof value !== 'undefined' && value !== null
+    ? transform(value)
+    : undefined;
 }

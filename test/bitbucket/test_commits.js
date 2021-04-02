@@ -4,7 +4,8 @@ $(() => {
     callback: mocha.run,
     overlay: true,
     enterprise: '',
-    debug_url: 'https://bitbucket.org/osallou/go-docker/commits/7766b261f7cefae31688636b830fd3497fc80c05',
+    debug_url:
+      'https://bitbucket.org/osallou/go-docker/commits/7766b261f7cefae31688636b830fd3497fc80c05',
   });
 });
 
@@ -13,8 +14,12 @@ describe('bitbucket commit', () => {
     save_coverage('bb-commits');
   });
   it('should start with no errors', () => {
-    expect(window.cc).to.have.property('slug').and.to.equal('osallou/go-docker');
-    expect(window.cc).to.have.property('ref').and.to.equal('7766b261f7cefae31688636b830fd3497fc80c05');
+    expect(window.cc)
+      .to.have.property('slug')
+      .and.to.equal('osallou/go-docker');
+    expect(window.cc)
+      .to.have.property('ref')
+      .and.to.equal('7766b261f7cefae31688636b830fd3497fc80c05');
     expect(window.cc).to.have.property('page').and.to.equal('commits');
     expect(window.cc).to.have.property('base').and.to.equal('');
   });

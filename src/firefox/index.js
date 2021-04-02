@@ -5,7 +5,8 @@ const { prefs } = require('sdk/simple-prefs');
 const domains = ['https://github.com/*', 'https://bitbucket.org/*'];
 
 if (prefs.domains) {
-  let d; let i;
+  let d;
+  let i;
   const enterprise = prefs.domains.split(',');
 
   for (i = enterprise.length - 1; i >= 0; i--) {
@@ -18,8 +19,7 @@ if (prefs.domains) {
 
 pageMod.PageMod({
   include: domains,
-  contentScriptFile: [data.url('jquery-2.1.3.min.js'),
-    data.url('codecov.js')],
+  contentScriptFile: [data.url('jquery-2.1.3.min.js'), data.url('codecov.js')],
   contentStyleFile: [data.url('codecov.css')],
   contentScriptWhen: 'end',
   onAttach(worker) {

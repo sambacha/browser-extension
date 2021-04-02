@@ -21,23 +21,109 @@ const Cls = (window.Codecov = class Codecov {
     this.prototype.found = false; // was coverage found
     this.prototype.urlid = 0; // which url to use when searching reports
     this.prototype.cache = [null, null];
-    this.prototype.colors = ['#f8d9d3', '#f8d9d3', '#f8d9d3', '#f9dad2', '#f9dad2', '#fadad1',
-      '#fadad1', '#fadad1', '#fbdbd0', '#fbdbd0', '#fbdbd0', '#fcdbcf',
-      '#fcdccf', '#fddcce', '#fddcce', '#fdddce', '#feddcd', '#feddcd',
-      '#fedecd', '#ffdecc', '#ffdecc', '#ffdfcc', '#fee0cd', '#fee2cd',
-      '#fee3cd', '#fee4cd', '#fde5ce', '#fde6ce', '#fde7ce', '#fde8ce',
-      '#fce9cf', '#fceacf', '#fcebcf', '#fceccf', '#fbedd0', '#fbeed0',
-      '#fbefd0', '#fbefd0', '#faf0d1', '#faf1d1', '#faf1d1', '#faf2d1',
-      '#faf2d1', '#faf2d1', '#faf3d1', '#f9f3d2', '#f9f4d2', '#f9f4d2',
-      '#f9f4d2', '#f9f5d2', '#f9f5d2', '#f9f5d2', '#f8f6d3', '#f8f6d3',
-      '#f8f6d3', '#f8f7d3', '#f8f7d3', '#f8f7d3', '#f7f8d3', '#f7f7d4',
-      '#f7f7d4', '#f7f8d3', '#f7f8d3', '#f7f9d2', '#f6f9d2', '#f6f9d2',
-      '#f6fad1', '#f6fad1', '#f6fbd0', '#f6fbd0', '#f5fbd0', '#f5fccf',
-      '#f5fccf', '#f4fdce', '#f4fdce', '#f4fdce', '#f3fecd', '#f3fecd',
-      '#f3ffcc', '#f2ffcc', '#f2ffcc', '#f1ffcc', '#f0ffcc', '#eefecd',
-      '#edfecd', '#ecfecd', '#ebfecd', '#e9fecd', '#e8fdce', '#e7fdce',
-      '#e6fdce', '#e5fdce', '#e4fdce', '#e3fccf', '#e2fccf', '#e1fccf',
-      '#e0fccf', '#dffccf', '#defbd0', '#ddfbd0', '#dcfbd0'];
+    this.prototype.colors = [
+      '#f8d9d3',
+      '#f8d9d3',
+      '#f8d9d3',
+      '#f9dad2',
+      '#f9dad2',
+      '#fadad1',
+      '#fadad1',
+      '#fadad1',
+      '#fbdbd0',
+      '#fbdbd0',
+      '#fbdbd0',
+      '#fcdbcf',
+      '#fcdccf',
+      '#fddcce',
+      '#fddcce',
+      '#fdddce',
+      '#feddcd',
+      '#feddcd',
+      '#fedecd',
+      '#ffdecc',
+      '#ffdecc',
+      '#ffdfcc',
+      '#fee0cd',
+      '#fee2cd',
+      '#fee3cd',
+      '#fee4cd',
+      '#fde5ce',
+      '#fde6ce',
+      '#fde7ce',
+      '#fde8ce',
+      '#fce9cf',
+      '#fceacf',
+      '#fcebcf',
+      '#fceccf',
+      '#fbedd0',
+      '#fbeed0',
+      '#fbefd0',
+      '#fbefd0',
+      '#faf0d1',
+      '#faf1d1',
+      '#faf1d1',
+      '#faf2d1',
+      '#faf2d1',
+      '#faf2d1',
+      '#faf3d1',
+      '#f9f3d2',
+      '#f9f4d2',
+      '#f9f4d2',
+      '#f9f4d2',
+      '#f9f5d2',
+      '#f9f5d2',
+      '#f9f5d2',
+      '#f8f6d3',
+      '#f8f6d3',
+      '#f8f6d3',
+      '#f8f7d3',
+      '#f8f7d3',
+      '#f8f7d3',
+      '#f7f8d3',
+      '#f7f7d4',
+      '#f7f7d4',
+      '#f7f8d3',
+      '#f7f8d3',
+      '#f7f9d2',
+      '#f6f9d2',
+      '#f6f9d2',
+      '#f6fad1',
+      '#f6fad1',
+      '#f6fbd0',
+      '#f6fbd0',
+      '#f5fbd0',
+      '#f5fccf',
+      '#f5fccf',
+      '#f4fdce',
+      '#f4fdce',
+      '#f4fdce',
+      '#f3fecd',
+      '#f3fecd',
+      '#f3ffcc',
+      '#f2ffcc',
+      '#f2ffcc',
+      '#f1ffcc',
+      '#f0ffcc',
+      '#eefecd',
+      '#edfecd',
+      '#ecfecd',
+      '#ebfecd',
+      '#e9fecd',
+      '#e8fdce',
+      '#e7fdce',
+      '#e6fdce',
+      '#e5fdce',
+      '#e4fdce',
+      '#e3fccf',
+      '#e2fccf',
+      '#e1fccf',
+      '#e0fccf',
+      '#dffccf',
+      '#defbd0',
+      '#ddfbd0',
+      '#dcfbd0',
+    ];
     this.prototype.settings = {
       urls: [],
       overlay: true,
@@ -120,7 +206,9 @@ const Cls = (window.Codecov = class Codecov {
     this.log('::run');
     const self = this;
 
-    this.cachekey = `${this.slug}/${this.ref}${this.base ? `/${this.base}` : ''}`;
+    this.cachekey = `${this.slug}/${this.ref}${
+      this.base ? `/${this.base}` : ''
+    }`;
 
     // get fron storage
     // ----------------
@@ -153,7 +241,9 @@ const Cls = (window.Codecov = class Codecov {
     if (Array.from(this.ref).includes('/')) {
       url = `${endpoint}/api/${this.service}/${this.slug}/${this.ref}&src=extension`;
     } else {
-      const e = this.base ? `compare/${this.base}...${this.ref}` : `commits/${this.ref}`;
+      const e = this.base
+        ? `compare/${this.base}...${this.ref}`
+        : `commits/${this.ref}`;
 
       url = `${endpoint}/api/${this.service}/${this.slug}/${e}?src=extension`;
     }
@@ -182,7 +272,7 @@ const Cls = (window.Codecov = class Codecov {
         self._processing = false;
         self.log(arguments);
         self.error(xhr.status, reason);
-        if (self.settings.urls.length > (self.urlid + 1)) {
+        if (self.settings.urls.length > self.urlid + 1) {
           return self._get(self.settings.urls[(self.urlid += 1)]);
         }
       },
@@ -207,11 +297,47 @@ const Cls = (window.Codecov = class Codecov {
     }
 
     this.yaml = {
-      round: (__guard__(__guard__(res.repo != null ? res.repo.yaml : undefined, (x1) => x1.coverage), (x) => x.round) != null) || 'down',
-      precision: (__guard__(__guard__(res.repo != null ? res.repo.yaml : undefined, (x3) => x3.coverage), (x2) => x2.precision) != null) ? res.repo.yaml.coverage.precision : 2,
+      round:
+        __guard__(
+          __guard__(
+            res.repo != null ? res.repo.yaml : undefined,
+            (x1) => x1.coverage,
+          ),
+          (x) => x.round,
+        ) != null || 'down',
+      precision:
+        __guard__(
+          __guard__(
+            res.repo != null ? res.repo.yaml : undefined,
+            (x3) => x3.coverage,
+          ),
+          (x2) => x2.precision,
+        ) != null
+          ? res.repo.yaml.coverage.precision
+          : 2,
       range: [
-        parseFloat((__guard__(__guard__(res.repo != null ? res.repo.yaml : undefined, (x5) => x5.coverage), (x4) => x4.range) != null) ? res.repo.yaml.coverage.range[0] : 70),
-        parseFloat((__guard__(__guard__(res.repo != null ? res.repo.yaml : undefined, (x7) => x7.coverage), (x6) => x6.range) != null) ? res.repo.yaml.coverage.range[1] : 100),
+        parseFloat(
+          __guard__(
+            __guard__(
+              res.repo != null ? res.repo.yaml : undefined,
+              (x5) => x5.coverage,
+            ),
+            (x4) => x4.range,
+          ) != null
+            ? res.repo.yaml.coverage.range[0]
+            : 70,
+        ),
+        parseFloat(
+          __guard__(
+            __guard__(
+              res.repo != null ? res.repo.yaml : undefined,
+              (x7) => x7.coverage,
+            ),
+            (x6) => x6.range,
+          ) != null
+            ? res.repo.yaml.coverage.range[1]
+            : 100,
+        ),
       ],
     };
 
@@ -225,21 +351,24 @@ const Cls = (window.Codecov = class Codecov {
   }
 
   color(ln) {
-    if ((ln == null)) {
+    if (ln == null) {
       return;
     } // undefined or null
-    const c = (ln.c == null) ? ln : ln.c;
+    const c = ln.c == null ? ln : ln.c;
 
     if (c === 0) {
       return 'missed';
-    } if (c === true) {
+    }
+    if (c === true) {
       return 'partial';
-    } if (Array.from(c).includes('/')) {
+    }
+    if (Array.from(c).includes('/')) {
       const v = c.split('/');
 
       if (v[0] === '0') {
         return 'missed';
-      } if (v[0] === v[1]) {
+      }
+      if (v[0] === v[1]) {
         return 'hit';
       }
       return 'partial';
@@ -251,32 +380,40 @@ const Cls = (window.Codecov = class Codecov {
     coverage = parseFloat(coverage);
     if (coverage <= this.yaml.range[0]) {
       return this.colors[0];
-    } if (coverage >= this.yaml.range[1]) {
+    }
+    if (coverage >= this.yaml.range[1]) {
       return this.colors[100];
     }
-    return this.colors[parseInt(((coverage - this.yaml.range[0]) / (this.yaml.range[1] - this.yaml.range[0])) * 100)];
+    return this.colors[
+      parseInt(
+        ((coverage - this.yaml.range[0]) /
+          (this.yaml.range[1] - this.yaml.range[0])) *
+          100,
+      )
+    ];
   }
 
   ratio(x, y) {
     if (x >= y) {
       return '100';
-    } if (y > x && x > 0) {
-      return this.format((Math.round((x / y) * 10000) / 100));
+    }
+    if (y > x && x > 0) {
+      return this.format(Math.round((x / y) * 10000) / 100);
     }
     return '0';
   }
 
   format(cov) {
-    let _; let
-      c;
+    let _;
+    let c;
 
     cov = parseFloat(cov);
     if (this.yaml.round === 'up') {
       _ = parseFloat(Math.pow(10, this.yaml.precision));
-      c = (Math.ceil(cov * _) / _);
+      c = Math.ceil(cov * _) / _;
     } else if (this.yaml.round === 'down') {
       _ = parseFloat(Math.pow(10, this.yaml.precision));
-      c = (Math.floor(cov * _) / _);
+      c = Math.floor(cov * _) / _;
     } else {
       c = Math.round(cov, this.yaml.precision);
     }
@@ -306,28 +443,48 @@ Cls.initClass();
 
 window.create_codecov_instance = function (prefs, cb) {
   // hide codecov plugin
-  let needle; let
-    needle1;
+  let needle;
+  let needle1;
 
-  __guard__(document.getElementById('chrome-install-plugin'), (x) => x.style.display = 'none');
-  __guard__(document.getElementById('opera-install-plugin'), (x1) => x1.style.display = 'none');
+  __guard__(
+    document.getElementById('chrome-install-plugin'),
+    (x) => (x.style.display = 'none'),
+  );
+  __guard__(
+    document.getElementById('opera-install-plugin'),
+    (x1) => (x1.style.display = 'none'),
+  );
 
   // detect git service
   if ($('meta[name="hostname"]').length > 0) {
     return new Github(prefs, cb);
-  } if ((needle = $('meta[name="application-name"]').attr('content'), ['Bitbucket', 'Stash'].includes(needle))) {
+  }
+  if (
+    ((needle = $('meta[name="application-name"]').attr('content')),
+    ['Bitbucket', 'Stash'].includes(needle))
+  ) {
     return new Bitbucket(prefs, cb);
-  } if ((needle1 = 'GitLab', Array.from($('meta[name="description"]').attr('content')).includes(needle1))) {
+  }
+  if (
+    ((needle1 = 'GitLab'),
+    Array.from($('meta[name="description"]').attr('content')).includes(needle1))
+  ) {
     return new Gitlab(prefs, cb);
   }
 };
 
 function __guardMethod__(obj, methodName, transform) {
-  if (typeof obj !== 'undefined' && obj !== null && typeof obj[methodName] === 'function') {
+  if (
+    typeof obj !== 'undefined' &&
+    obj !== null &&
+    typeof obj[methodName] === 'function'
+  ) {
     return transform(obj, methodName);
   }
   return undefined;
 }
 function __guard__(value, transform) {
-  return (typeof value !== 'undefined' && value !== null) ? transform(value) : undefined;
+  return typeof value !== 'undefined' && value !== null
+    ? transform(value)
+    : undefined;
 }

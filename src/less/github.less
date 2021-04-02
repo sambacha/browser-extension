@@ -1,73 +1,74 @@
-td.blob-num.codecov.codecov-on{
-  &.codecov-hit{
+td.blob-num.codecov.codecov-on {
+  &.codecov-hit {
     background-color: #dbffdb;
     border-color: #c1e9c1;
   }
-  &.codecov-missed{
+  &.codecov-missed {
     background-color: #ffdddd;
     border-color: #f1c0c0;
   }
-  &.codecov-partial{
+  &.codecov-partial {
     background: rgb(247, 246, 172);
     border-color: rgb(213, 212, 116);
   }
-  &.codecov-null{
+  &.codecov-null {
     background: #fff;
     border-color: #eee;
   }
 }
 
-td.blob-code.codecov.codecov-on{
-  &.codecov-hit{
+td.blob-code.codecov.codecov-on {
+  &.codecov-hit {
     background-color: #eaffea;
   }
-  &.codecov-missed{
+  &.codecov-missed {
     background-color: #ffecec;
   }
-  &.codecov-partial{
+  &.codecov-partial {
     background-color: rgb(252, 252, 214);
   }
-  &.codecov-null{
+  &.codecov-null {
     background-color: #fff;
   }
 }
 
-.file-diff-split{
-  td.blob-num.codecov.codecov-hit:not(.codecov-on){
-    background-color: #4FD94F;
+.file-diff-split {
+  td.blob-num.codecov.codecov-hit:not(.codecov-on) {
+    background-color: #4fd94f;
   }
-  td.blob-num.codecov.codecov-partial:not(.codecov-on){
-    background-color: #FEF04F;
+  td.blob-num.codecov.codecov-partial:not(.codecov-on) {
+    background-color: #fef04f;
   }
-  td.blob-num.codecov.codecov-missed:not(.codecov-on){
-    background-color: #EF6C6C;
+  td.blob-num.codecov.codecov-missed:not(.codecov-on) {
+    background-color: #ef6c6c;
   }
 }
 
 .sha-block.codecov,
-.sha.codecov{
+.sha.codecov {
   margin: 0 4px;
 }
 
-.file.codecov-enabled{
+.file.codecov-enabled {
   // hide Diff higlighting when codecov is enabled
-  .blob-num-addition, .blob-code-addition,
-  .blob-num-deletion, .blob-code-deletion{
+  .blob-num-addition,
+  .blob-code-addition,
+  .blob-num-deletion,
+  .blob-code-deletion {
     background-color: inherit;
     border-color: inherit;
   }
 }
 
-.file:not(.codecov-enabled) .empty-cell.codecov{
+.file:not(.codecov-enabled) .empty-cell.codecov {
   // diff/compare show on empty cell diffs
-  &.codecov-hit{
-    background-color: #34A032;
+  &.codecov-hit {
+    background-color: #34a032;
   }
-  &.codecov-partial{
-    background-color: #DADA38;
+  &.codecov-partial {
+    background-color: #dada38;
   }
-  &.codecov-missed{
-    background-color: #A03232;
+  &.codecov-missed {
+    background-color: #a03232;
   }
-
 }

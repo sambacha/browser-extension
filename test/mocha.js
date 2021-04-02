@@ -22,7 +22,9 @@
     const reg = `${path}.js`;
     const index = `${path}/index.js`;
 
-    return require.modules[reg] && reg || require.modules[index] && index || orig;
+    return (
+      (require.modules[reg] && reg) || (require.modules[index] && index) || orig
+    );
   };
 
   require.register = function (path, fn) {
@@ -56,8 +58,7 @@
 
   require.register('browser/debug.js', (module, exports, require) => {
     module.exports = function (type) {
-      return function () {
-      };
+      return function () {};
     };
   }); // module: browser/debug.js
 
@@ -65,19 +66,19 @@
     /* See LICENSE file for terms of use */
 
     /*
- * Text diff implementation.
- *
- * This library supports the following APIS:
- * JsDiff.diffChars: Character by character diff
- * JsDiff.diffWords: Word (as defined by \b regex) diff which ignores whitespace
- * JsDiff.diffLines: Line based diff
- *
- * JsDiff.diffCss: Diff targeted at CSS content
- *
- * These methods are based on the implementation proposed in
- * "An O(ND) Difference Algorithm and its Variations" (Myers, 1986).
- * http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.4.6927
- */
+     * Text diff implementation.
+     *
+     * This library supports the following APIS:
+     * JsDiff.diffChars: Character by character diff
+     * JsDiff.diffWords: Word (as defined by \b regex) diff which ignores whitespace
+     * JsDiff.diffLines: Line based diff
+     *
+     * JsDiff.diffCss: Diff targeted at CSS content
+     *
+     * These methods are based on the implementation proposed in
+     * "An O(ND) Difference Algorithm and its Variations" (Myers, 1986).
+     * http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.4.6927
+     */
     const JsDiff = (function () {
       /* jshint maxparams: 5 */
       function clonePath(path) {
@@ -124,7 +125,8 @@
           newString = this.tokenize(newString);
           oldString = this.tokenize(oldString);
 
-          const newLen = newString.length; const oldLen = oldString.length;
+          const newLen = newString.length;
+          const oldLen = oldString.length;
           const maxEditLength = newLen + oldLen;
           const bestPath = [{ newPos: -1, components: [] }];
 
@@ -136,7 +138,11 @@
           }
 
           for (let editLength = 1; editLength <= maxEditLength; editLength++) {
-            for (let diagonalPath = -1 * editLength; diagonalPath <= editLength; diagonalPath += 2) {
+            for (
+              let diagonalPath = -1 * editLength;
+              diagonalPath <= editLength;
+              diagonalPath += 2
+            ) {
               var basePath;
               const addPath = bestPath[diagonalPath - 1];
               const removePath = bestPath[diagonalPath + 1];
@@ -158,16 +164,34 @@
               // Select the diagonal that we want to branch from. We select the prior
               // path whose position in the new string is the farthest from the origin
               // and does not pass the bounds of the diff graph
-              if (!canAdd || (canRemove && addPath.newPos < removePath.newPos)) {
+              if (
+                !canAdd ||
+                (canRemove && addPath.newPos < removePath.newPos)
+              ) {
                 basePath = clonePath(removePath);
-                this.pushComponent(basePath.components, oldString[oldPos], undefined, true);
+                this.pushComponent(
+                  basePath.components,
+                  oldString[oldPos],
+                  undefined,
+                  true,
+                );
               } else {
                 basePath = clonePath(addPath);
                 basePath.newPos++;
-                this.pushComponent(basePath.components, newString[basePath.newPos], true, undefined);
+                this.pushComponent(
+                  basePath.components,
+                  newString[basePath.newPos],
+                  true,
+                  undefined,
+                );
               }
 
-              var oldPos = this.extractCommon(basePath, newString, oldString, diagonalPath);
+              var oldPos = this.extractCommon(
+                basePath,
+                newString,
+                oldString,
+                diagonalPath,
+              );
 
               if (basePath.newPos + 1 >= newLen && oldPos + 1 >= oldLen) {
                 return basePath.components;
@@ -183,7 +207,11 @@
           if (last && last.added === added && last.removed === removed) {
             // We need to clone here as the component clone operation is just
             // as shallow array clone
-            components[components.length - 1] = { value: this.join(last.value, value), added, removed };
+            components[components.length - 1] = {
+              value: this.join(last.value, value),
+              added,
+              removed,
+            };
           } else {
             components.push({ value, added, removed });
           }
@@ -194,11 +222,20 @@
           let { newPos } = basePath;
           let oldPos = newPos - diagonalPath;
 
-          while (newPos + 1 < newLen && oldPos + 1 < oldLen && this.equals(newString[newPos + 1], oldString[oldPos + 1])) {
+          while (
+            newPos + 1 < newLen &&
+            oldPos + 1 < oldLen &&
+            this.equals(newString[newPos + 1], oldString[oldPos + 1])
+          ) {
             newPos++;
             oldPos++;
 
-            this.pushComponent(basePath.components, newString[newPos], undefined, undefined);
+            this.pushComponent(
+              basePath.components,
+              newString[newPos],
+              undefined,
+              undefined,
+            );
           }
           basePath.newPos = newPos;
           return oldPos;
@@ -207,7 +244,11 @@
         equals(left, right) {
           const reWhitespace = /\S/;
 
-          if (this.ignoreWhitespace && !reWhitespace.test(left) && !reWhitespace.test(right)) {
+          if (
+            this.ignoreWhitespace &&
+            !reWhitespace.test(left) &&
+            !reWhitespace.test(right)
+          ) {
             return true;
           }
           return left === right;
@@ -246,7 +287,11 @@
           const lastLine = lines[i - 1];
 
           // Merge lines that may contain windows new lines
-          if (line == '\n' && lastLine && lastLine[lastLine.length - 1] === '\r') {
+          if (
+            line == '\n' &&
+            lastLine &&
+            lastLine[lastLine.length - 1] === '\r'
+          ) {
             retLines[retLines.length - 1] += '\n';
           } else if (line) {
             retLines.push(line);
@@ -280,9 +325,19 @@
           const ret = [];
 
           ret.push(`Index: ${fileName}`);
-          ret.push('===================================================================');
-          ret.push(`--- ${fileName}${typeof oldHeader === 'undefined' ? '' : `\t${oldHeader}`}`);
-          ret.push(`+++ ${fileName}${typeof newHeader === 'undefined' ? '' : `\t${newHeader}`}`);
+          ret.push(
+            '===================================================================',
+          );
+          ret.push(
+            `--- ${fileName}${
+              typeof oldHeader === 'undefined' ? '' : `\t${oldHeader}`
+            }`,
+          );
+          ret.push(
+            `+++ ${fileName}${
+              typeof newHeader === 'undefined' ? '' : `\t${newHeader}`
+            }`,
+          );
 
           const diff = LineDiff.diff(oldStr, newStr);
 
@@ -297,7 +352,10 @@
           function eofNL(curRange, i, current) {
             const last = diff[diff.length - 2];
             const isLast = i === diff.length - 2;
-            const isLastOfType = i === diff.length - 3 && (current.added !== last.added || current.removed !== last.removed);
+            const isLastOfType =
+              i === diff.length - 3 &&
+              (current.added !== last.added ||
+                current.removed !== last.removed);
 
             // Figure out if this is the last line for the given file and missing NL
             if (!/\n$/.test(current.value) && (isLast || isLastOfType)) {
@@ -305,13 +363,16 @@
             }
           }
 
-          let oldRangeStart = 0; let newRangeStart = 0; let curRange = [];
-          let oldLine = 1; let
-            newLine = 1;
+          let oldRangeStart = 0;
+          let newRangeStart = 0;
+          let curRange = [];
+          let oldLine = 1;
+          let newLine = 1;
 
           for (let i = 0; i < diff.length; i++) {
             var current = diff[i];
-            const lines = current.lines || current.value.replace(/\n$/, '').split('\n');
+            const lines =
+              current.lines || current.value.replace(/\n$/, '').split('\n');
 
             current.lines = lines;
 
@@ -328,7 +389,10 @@
                   newRangeStart -= curRange.length;
                 }
               }
-              curRange.push.apply(curRange, lines.map((entry) => (current.added ? '+' : '-') + entry));
+              curRange.push.apply(
+                curRange,
+                lines.map((entry) => (current.added ? '+' : '-') + entry),
+              );
               eofNL(curRange, i, current);
 
               if (current.added) {
@@ -347,15 +411,24 @@
                   const contextSize = Math.min(lines.length, 4);
 
                   ret.push(
-                    `@@ -${oldRangeStart},${oldLine - oldRangeStart + contextSize} +${newRangeStart},${newLine - newRangeStart + contextSize} @@`,
+                    `@@ -${oldRangeStart},${
+                      oldLine - oldRangeStart + contextSize
+                    } +${newRangeStart},${
+                      newLine - newRangeStart + contextSize
+                    } @@`,
                   );
                   ret.push.apply(ret, curRange);
-                  ret.push.apply(ret, contextLines(lines.slice(0, contextSize)));
+                  ret.push.apply(
+                    ret,
+                    contextLines(lines.slice(0, contextSize)),
+                  );
                   if (lines.length <= 4) {
                     eofNL(ret, i, current);
                   }
 
-                  oldRangeStart = 0; newRangeStart = 0; curRange = [];
+                  oldRangeStart = 0;
+                  newRangeStart = 0;
+                  curRange = [];
                 }
               }
               oldLine += lines.length;
@@ -372,7 +445,7 @@
           let remEOFNL = false;
           let addEOFNL = false;
 
-          for (var i = (diffstr[0][0] === 'I' ? 4 : 0); i < diffstr.length; i++) {
+          for (var i = diffstr[0][0] === 'I' ? 4 : 0; i < diffstr.length; i++) {
             if (diffstr[i][0] === '@') {
               const meh = diffstr[i].split(/@@ -(\d+),(\d+) \+(\d+),(\d+) @@/);
 
@@ -409,7 +482,10 @@
                 return false;
               }
             }
-            Array.prototype.splice.apply(str, [d.start - 1, +d.oldlength].concat(d.newlines));
+            Array.prototype.splice.apply(
+              str,
+              [d.start - 1, +d.oldlength].concat(d.newlines),
+            );
           }
 
           if (remEOFNL) {
@@ -447,63 +523,69 @@
 
         // See: http://code.google.com/p/google-diff-match-patch/wiki/API
         convertChangesToDMP(changes) {
-          const ret = []; let
-            change;
+          const ret = [];
+          let change;
 
           for (let i = 0; i < changes.length; i++) {
             change = changes[i];
-            ret.push([(change.added ? 1 : change.removed ? -1 : 0), change.value]);
+            ret.push([
+              change.added ? 1 : change.removed ? -1 : 0,
+              change.value,
+            ]);
           }
           return ret;
         },
       };
-    }());
+    })();
 
     if (typeof module !== 'undefined') {
       module.exports = JsDiff;
     }
   }); // module: browser/diff.js
 
-  require.register('browser/escape-string-regexp.js', (module, exports, require) => {
-    const matchOperatorsRe = /[|\\{}()[\]^$+*?.]/g;
+  require.register(
+    'browser/escape-string-regexp.js',
+    (module, exports, require) => {
+      const matchOperatorsRe = /[|\\{}()[\]^$+*?.]/g;
 
-    module.exports = function (str) {
-      if (typeof str !== 'string') {
-        throw new TypeError('Expected a string');
-      }
+      module.exports = function (str) {
+        if (typeof str !== 'string') {
+          throw new TypeError('Expected a string');
+        }
 
-      return str.replace(matchOperatorsRe, '\\$&');
-    };
-  }); // module: browser/escape-string-regexp.js
+        return str.replace(matchOperatorsRe, '\\$&');
+      };
+    },
+  ); // module: browser/escape-string-regexp.js
 
   require.register('browser/events.js', (module, exports, require) => {
     /**
- * Module exports.
- */
+     * Module exports.
+     */
 
     exports.EventEmitter = EventEmitter;
 
     /**
- * Check if `obj` is an array.
- */
+     * Check if `obj` is an array.
+     */
 
     function isArray(obj) {
       return {}.toString.call(obj) == '[object Array]';
     }
 
     /**
- * Event emitter constructor.
- *
- * @api public
- */
+     * Event emitter constructor.
+     *
+     * @api public
+     */
 
     function EventEmitter() {}
 
     /**
- * Adds a listener.
- *
- * @api public
- */
+     * Adds a listener.
+     *
+     * @api public
+     */
 
     EventEmitter.prototype.on = function (name, fn) {
       if (!this.$events) {
@@ -524,10 +606,10 @@
     EventEmitter.prototype.addListener = EventEmitter.prototype.on;
 
     /**
- * Adds a volatile listener.
- *
- * @api public
- */
+     * Adds a volatile listener.
+     *
+     * @api public
+     */
 
     EventEmitter.prototype.once = function (name, fn) {
       const self = this;
@@ -544,10 +626,10 @@
     };
 
     /**
- * Removes a listener.
- *
- * @api public
- */
+     * Removes a listener.
+     *
+     * @api public
+     */
 
     EventEmitter.prototype.removeListener = function (name, fn) {
       if (this.$events && this.$events[name]) {
@@ -557,7 +639,10 @@
           let pos = -1;
 
           for (let i = 0, l = list.length; i < l; i++) {
-            if (list[i] === fn || (list[i].listener && list[i].listener === fn)) {
+            if (
+              list[i] === fn ||
+              (list[i].listener && list[i].listener === fn)
+            ) {
               pos = i;
               break;
             }
@@ -581,10 +666,10 @@
     };
 
     /**
- * Removes all listeners for an event.
- *
- * @api public
- */
+     * Removes all listeners for an event.
+     *
+     * @api public
+     */
 
     EventEmitter.prototype.removeAllListeners = function (name) {
       if (name === undefined) {
@@ -600,10 +685,10 @@
     };
 
     /**
- * Gets all listeners for a certain event.
- *
- * @api public
- */
+     * Gets all listeners for a certain event.
+     *
+     * @api public
+     */
 
     EventEmitter.prototype.listeners = function (name) {
       if (!this.$events) {
@@ -622,10 +707,10 @@
     };
 
     /**
- * Emits an event.
- *
- * @api public
- */
+     * Emits an event.
+     *
+     * @api public
+     */
 
     EventEmitter.prototype.emit = function (name) {
       if (!this.$events) {
@@ -656,28 +741,22 @@
     };
   }); // module: browser/events.js
 
-  require.register('browser/fs.js', (module, exports, require) => {
+  require.register('browser/fs.js', (module, exports, require) => {}); // module: browser/fs.js
 
-  }); // module: browser/fs.js
+  require.register('browser/glob.js', (module, exports, require) => {}); // module: browser/glob.js
 
-  require.register('browser/glob.js', (module, exports, require) => {
-
-  }); // module: browser/glob.js
-
-  require.register('browser/path.js', (module, exports, require) => {
-
-  }); // module: browser/path.js
+  require.register('browser/path.js', (module, exports, require) => {}); // module: browser/path.js
 
   require.register('browser/progress.js', (module, exports, require) => {
     /**
- * Expose `Progress`.
- */
+     * Expose `Progress`.
+     */
 
     module.exports = Progress;
 
     /**
- * Initialize a new `Progress` indicator.
- */
+     * Initialize a new `Progress` indicator.
+     */
 
     function Progress() {
       this.percent = 0;
@@ -687,12 +766,12 @@
     }
 
     /**
- * Set progress size to `n`.
- *
- * @param {Number} n
- * @return {Progress} for chaining
- * @api public
- */
+     * Set progress size to `n`.
+     *
+     * @param {Number} n
+     * @return {Progress} for chaining
+     * @api public
+     */
 
     Progress.prototype.size = function (n) {
       this._size = n;
@@ -700,12 +779,12 @@
     };
 
     /**
- * Set text to `str`.
- *
- * @param {String} str
- * @return {Progress} for chaining
- * @api public
- */
+     * Set text to `str`.
+     *
+     * @param {String} str
+     * @return {Progress} for chaining
+     * @api public
+     */
 
     Progress.prototype.text = function (str) {
       this._text = str;
@@ -713,12 +792,12 @@
     };
 
     /**
- * Set font size to `n`.
- *
- * @param {Number} n
- * @return {Progress} for chaining
- * @api public
- */
+     * Set font size to `n`.
+     *
+     * @param {Number} n
+     * @return {Progress} for chaining
+     * @api public
+     */
 
     Progress.prototype.fontSize = function (n) {
       this._fontSize = n;
@@ -726,11 +805,11 @@
     };
 
     /**
- * Set font `family`.
- *
- * @param {String} family
- * @return {Progress} for chaining
- */
+     * Set font `family`.
+     *
+     * @param {String} family
+     * @return {Progress} for chaining
+     */
 
     Progress.prototype.font = function (family) {
       this._font = family;
@@ -738,11 +817,11 @@
     };
 
     /**
- * Update percentage to `n`.
- *
- * @param {Number} n
- * @return {Progress} for chaining
- */
+     * Update percentage to `n`.
+     *
+     * @param {Number} n
+     * @return {Progress} for chaining
+     */
 
     Progress.prototype.update = function (n) {
       this.percent = n;
@@ -750,11 +829,11 @@
     };
 
     /**
- * Draw on `ctx`.
- *
- * @param {CanvasRenderingContext2d} ctx
- * @return {Progress} for chaining
- */
+     * Draw on `ctx`.
+     *
+     * @param {CanvasRenderingContext2d} ctx
+     * @return {Progress} for chaining
+     */
 
     Progress.prototype.draw = function (ctx) {
       try {
@@ -788,11 +867,7 @@
         const text = this._text || `${percent | 0}%`;
         const w = ctx.measureText(text).width;
 
-        ctx.fillText(
-          text,
-          x - w / 2 + 1,
-          y + fontSize / 2 - 1,
-        );
+        ctx.fillText(text, x - w / 2 + 1, y + fontSize / 2 - 1);
       } catch (ex) {} // don't fail if we can't render progress
       return this;
     };
@@ -814,26 +889,26 @@
 
   require.register('context.js', (module, exports, require) => {
     /**
- * Expose `Context`.
- */
+     * Expose `Context`.
+     */
 
     module.exports = Context;
 
     /**
- * Initialize a new `Context`.
- *
- * @api private
- */
+     * Initialize a new `Context`.
+     *
+     * @api private
+     */
 
     function Context() {}
 
     /**
- * Set or get the context `Runnable` to `runnable`.
- *
- * @param {Runnable} runnable
- * @return {Context}
- * @api private
- */
+     * Set or get the context `Runnable` to `runnable`.
+     *
+     * @param {Runnable} runnable
+     * @return {Context}
+     * @api private
+     */
 
     Context.prototype.runnable = function (runnable) {
       if (arguments.length == 0) {
@@ -844,12 +919,12 @@
     };
 
     /**
- * Set test timeout `ms`.
- *
- * @param {Number} ms
- * @return {Context} self
- * @api private
- */
+     * Set test timeout `ms`.
+     *
+     * @param {Number} ms
+     * @return {Context} self
+     * @api private
+     */
 
     Context.prototype.timeout = function (ms) {
       if (arguments.length === 0) {
@@ -860,12 +935,12 @@
     };
 
     /**
- * Set test timeout `enabled`.
- *
- * @param {Boolean} enabled
- * @return {Context} self
- * @api private
- */
+     * Set test timeout `enabled`.
+     *
+     * @param {Boolean} enabled
+     * @return {Context} self
+     * @api private
+     */
 
     Context.prototype.enableTimeouts = function (enabled) {
       this.runnable().enableTimeouts(enabled);
@@ -873,12 +948,12 @@
     };
 
     /**
- * Set test slowness threshold `ms`.
- *
- * @param {Number} ms
- * @return {Context} self
- * @api private
- */
+     * Set test slowness threshold `ms`.
+     *
+     * @param {Number} ms
+     * @return {Context} self
+     * @api private
+     */
 
     Context.prototype.slow = function (ms) {
       this.runnable().slow(ms);
@@ -886,45 +961,49 @@
     };
 
     /**
- * Inspect the context void of `._runnable`.
- *
- * @return {String}
- * @api private
- */
+     * Inspect the context void of `._runnable`.
+     *
+     * @return {String}
+     * @api private
+     */
 
     Context.prototype.inspect = function () {
-      return JSON.stringify(this, (key, val) => {
-        if (key == '_runnable') {
-          return;
-        }
-        if (key == 'test') {
-          return;
-        }
-        return val;
-      }, 2);
+      return JSON.stringify(
+        this,
+        (key, val) => {
+          if (key == '_runnable') {
+            return;
+          }
+          if (key == 'test') {
+            return;
+          }
+          return val;
+        },
+        2,
+      );
     };
   }); // module: context.js
 
   require.register('hook.js', (module, exports, require) => {
     /**
- * Module dependencies.
- */
+     * Module dependencies.
+     */
 
     const Runnable = require('./runnable');
 
     /**
- * Expose `Hook`.
- */
+     * Expose `Hook`.
+     */
 
     module.exports = Hook;
 
     /**
- * Initialize a new `Hook` with the given `title` and callback `fn`.
- *
- * @param {String} title
- * @param {Function} fn
- * @api private
- */
+     * Initialize a new `Hook` with the given `title` and callback `fn`.
+     *
+     * @param {String} title
+     * @param {Function} fn
+     * @api private
+     */
 
     function Hook(title, fn) {
       Runnable.call(this, title, fn);
@@ -932,8 +1011,8 @@
     }
 
     /**
- * Inherit from `Runnable.prototype`.
- */
+     * Inherit from `Runnable.prototype`.
+     */
 
     function F() {}
     F.prototype = Runnable.prototype;
@@ -941,12 +1020,12 @@
     Hook.prototype.constructor = Hook;
 
     /**
- * Get or set the test `err`.
- *
- * @param {Error} err
- * @return {Error}
- * @api public
- */
+     * Get or set the test `err`.
+     *
+     * @param {Error} err
+     * @return {Error}
+     * @api public
+     */
 
     Hook.prototype.error = function (err) {
       if (arguments.length == 0) {
@@ -962,8 +1041,8 @@
 
   require.register('interfaces/bdd.js', (module, exports, require) => {
     /**
- * Module dependencies.
- */
+     * Module dependencies.
+     */
 
     const Suite = require('../suite');
     const Test = require('../test');
@@ -971,63 +1050,63 @@
     const escapeRe = require('browser/escape-string-regexp');
 
     /**
- * BDD-style interface:
- *
- *      describe('Array', function(){
- *        describe('#indexOf()', function(){
- *          it('should return -1 when not present', function(){
- *
- *          });
- *
- *          it('should return the index when present', function(){
- *
- *          });
- *        });
- *      });
- *
- */
+     * BDD-style interface:
+     *
+     *      describe('Array', function(){
+     *        describe('#indexOf()', function(){
+     *          it('should return -1 when not present', function(){
+     *
+     *          });
+     *
+     *          it('should return the index when present', function(){
+     *
+     *          });
+     *        });
+     *      });
+     *
+     */
 
     module.exports = function (suite) {
       const suites = [suite];
 
       suite.on('pre-require', (context, file, mocha) => {
         /**
-     * Execute before running tests.
-     */
+         * Execute before running tests.
+         */
 
         context.before = function (name, fn) {
           suites[0].beforeAll(name, fn);
         };
 
         /**
-     * Execute after running tests.
-     */
+         * Execute after running tests.
+         */
 
         context.after = function (name, fn) {
           suites[0].afterAll(name, fn);
         };
 
         /**
-     * Execute before each test case.
-     */
+         * Execute before each test case.
+         */
 
         context.beforeEach = function (name, fn) {
           suites[0].beforeEach(name, fn);
         };
 
         /**
-     * Execute after each test case.
-     */
+         * Execute after each test case.
+         */
 
         context.afterEach = function (name, fn) {
           suites[0].afterEach(name, fn);
         };
 
         /**
-     * Describe a "suite" with the given `title`
-     * and callback `fn` containing nested suites
-     * and/or tests.
-     */
+         * Describe a "suite" with the given `title`
+         * and callback `fn` containing nested suites
+         * and/or tests.
+         */
 
         context.describe = context.context = function (title, fn) {
           const suite = Suite.create(suites[0], title);
@@ -1040,10 +1119,13 @@
         };
 
         /**
-     * Pending describe.
-     */
+         * Pending describe.
+         */
 
-        context.xdescribe = context.xcontext = context.describe.skip = function (title, fn) {
+        context.xdescribe = context.xcontext = context.describe.skip = function (
+          title,
+          fn,
+        ) {
           const suite = Suite.create(suites[0], title);
 
           suite.pending = true;
@@ -1053,8 +1135,8 @@
         };
 
         /**
-     * Exclusive suite.
-     */
+         * Exclusive suite.
+         */
 
         context.describe.only = function (title, fn) {
           const suite = context.describe(title, fn);
@@ -1064,10 +1146,10 @@
         };
 
         /**
-     * Describe a specification or test-case
-     * with the given `title` and callback `fn`
-     * acting as a thunk.
-     */
+         * Describe a specification or test-case
+         * with the given `title` and callback `fn`
+         * acting as a thunk.
+         */
 
         context.it = context.specify = function (title, fn) {
           const suite = suites[0];
@@ -1083,8 +1165,8 @@
         };
 
         /**
-     * Exclusive test-case.
-     */
+         * Exclusive test-case.
+         */
 
         context.it.only = function (title, fn) {
           const test = context.it(title, fn);
@@ -1095,8 +1177,8 @@
         };
 
         /**
-     * Pending test case.
-     */
+         * Pending test case.
+         */
 
         context.xit = context.xspecify = context.it.skip = function (title) {
           context.it(title);
@@ -1107,28 +1189,28 @@
 
   require.register('interfaces/exports.js', (module, exports, require) => {
     /**
- * Module dependencies.
- */
+     * Module dependencies.
+     */
 
     const Suite = require('../suite');
     const Test = require('../test');
 
     /**
- * TDD-style interface:
- *
- *     exports.Array = {
- *       '#indexOf()': {
- *         'should return -1 when the value is not present': function(){
- *
- *         },
- *
- *         'should return the correct index when the value is present': function(){
- *
- *         }
- *       }
- *     };
- *
- */
+     * TDD-style interface:
+     *
+     *     exports.Array = {
+     *       '#indexOf()': {
+     *         'should return -1 when the value is not present': function(){
+     *
+     *         },
+     *
+     *         'should return the correct index when the value is present': function(){
+     *
+     *         }
+     *       }
+     *     };
+     *
+     */
 
     module.exports = function (suite) {
       const suites = [suite];
@@ -1181,8 +1263,8 @@
 
   require.register('interfaces/qunit.js', (module, exports, require) => {
     /**
- * Module dependencies.
- */
+     * Module dependencies.
+     */
 
     const Suite = require('../suite');
     const Test = require('../test');
@@ -1190,69 +1272,69 @@
     const utils = require('../utils');
 
     /**
- * QUnit-style interface:
- *
- *     suite('Array');
- *
- *     test('#length', function(){
- *       var arr = [1,2,3];
- *       ok(arr.length == 3);
- *     });
- *
- *     test('#indexOf()', function(){
- *       var arr = [1,2,3];
- *       ok(arr.indexOf(1) == 0);
- *       ok(arr.indexOf(2) == 1);
- *       ok(arr.indexOf(3) == 2);
- *     });
- *
- *     suite('String');
- *
- *     test('#length', function(){
- *       ok('foo'.length == 3);
- *     });
- *
- */
+     * QUnit-style interface:
+     *
+     *     suite('Array');
+     *
+     *     test('#length', function(){
+     *       var arr = [1,2,3];
+     *       ok(arr.length == 3);
+     *     });
+     *
+     *     test('#indexOf()', function(){
+     *       var arr = [1,2,3];
+     *       ok(arr.indexOf(1) == 0);
+     *       ok(arr.indexOf(2) == 1);
+     *       ok(arr.indexOf(3) == 2);
+     *     });
+     *
+     *     suite('String');
+     *
+     *     test('#length', function(){
+     *       ok('foo'.length == 3);
+     *     });
+     *
+     */
 
     module.exports = function (suite) {
       const suites = [suite];
 
       suite.on('pre-require', (context, file, mocha) => {
         /**
-     * Execute before running tests.
-     */
+         * Execute before running tests.
+         */
 
         context.before = function (name, fn) {
           suites[0].beforeAll(name, fn);
         };
 
         /**
-     * Execute after running tests.
-     */
+         * Execute after running tests.
+         */
 
         context.after = function (name, fn) {
           suites[0].afterAll(name, fn);
         };
 
         /**
-     * Execute before each test case.
-     */
+         * Execute before each test case.
+         */
 
         context.beforeEach = function (name, fn) {
           suites[0].beforeEach(name, fn);
         };
 
         /**
-     * Execute after each test case.
-     */
+         * Execute after each test case.
+         */
 
         context.afterEach = function (name, fn) {
           suites[0].afterEach(name, fn);
         };
 
         /**
-     * Describe a "suite" with the given `title`.
-     */
+         * Describe a "suite" with the given `title`.
+         */
 
         context.suite = function (title) {
           if (suites.length > 1) {
@@ -1266,8 +1348,8 @@
         };
 
         /**
-     * Exclusive test-case.
-     */
+         * Exclusive test-case.
+         */
 
         context.suite.only = function (title, fn) {
           const suite = context.suite(title, fn);
@@ -1276,10 +1358,10 @@
         };
 
         /**
-     * Describe a specification or test-case
-     * with the given `title` and callback `fn`
-     * acting as a thunk.
-     */
+         * Describe a specification or test-case
+         * with the given `title` and callback `fn`
+         * acting as a thunk.
+         */
 
         context.test = function (title, fn) {
           const test = new Test(title, fn);
@@ -1290,8 +1372,8 @@
         };
 
         /**
-     * Exclusive test-case.
-     */
+         * Exclusive test-case.
+         */
 
         context.test.only = function (title, fn) {
           const test = context.test(title, fn);
@@ -1301,8 +1383,8 @@
         };
 
         /**
-     * Pending test case.
-     */
+         * Pending test case.
+         */
 
         context.test.skip = function (title) {
           context.test(title);
@@ -1313,8 +1395,8 @@
 
   require.register('interfaces/tdd.js', (module, exports, require) => {
     /**
- * Module dependencies.
- */
+     * Module dependencies.
+     */
 
     const Suite = require('../suite');
     const Test = require('../test');
@@ -1322,71 +1404,71 @@
     const utils = require('../utils');
 
     /**
- * TDD-style interface:
- *
- *      suite('Array', function(){
- *        suite('#indexOf()', function(){
- *          suiteSetup(function(){
- *
- *          });
- *
- *          test('should return -1 when not present', function(){
- *
- *          });
- *
- *          test('should return the index when present', function(){
- *
- *          });
- *
- *          suiteTeardown(function(){
- *
- *          });
- *        });
- *      });
- *
- */
+     * TDD-style interface:
+     *
+     *      suite('Array', function(){
+     *        suite('#indexOf()', function(){
+     *          suiteSetup(function(){
+     *
+     *          });
+     *
+     *          test('should return -1 when not present', function(){
+     *
+     *          });
+     *
+     *          test('should return the index when present', function(){
+     *
+     *          });
+     *
+     *          suiteTeardown(function(){
+     *
+     *          });
+     *        });
+     *      });
+     *
+     */
 
     module.exports = function (suite) {
       const suites = [suite];
 
       suite.on('pre-require', (context, file, mocha) => {
         /**
-     * Execute before each test case.
-     */
+         * Execute before each test case.
+         */
 
         context.setup = function (name, fn) {
           suites[0].beforeEach(name, fn);
         };
 
         /**
-     * Execute after each test case.
-     */
+         * Execute after each test case.
+         */
 
         context.teardown = function (name, fn) {
           suites[0].afterEach(name, fn);
         };
 
         /**
-     * Execute before the suite.
-     */
+         * Execute before the suite.
+         */
 
         context.suiteSetup = function (name, fn) {
           suites[0].beforeAll(name, fn);
         };
 
         /**
-     * Execute after the suite.
-     */
+         * Execute after the suite.
+         */
 
         context.suiteTeardown = function (name, fn) {
           suites[0].afterAll(name, fn);
         };
 
         /**
-     * Describe a "suite" with the given `title`
-     * and callback `fn` containing nested suites
-     * and/or tests.
-     */
+         * Describe a "suite" with the given `title`
+         * and callback `fn` containing nested suites
+         * and/or tests.
+         */
 
         context.suite = function (title, fn) {
           const suite = Suite.create(suites[0], title);
@@ -1399,8 +1481,8 @@
         };
 
         /**
-     * Pending suite.
-     */
+         * Pending suite.
+         */
         context.suite.skip = function (title, fn) {
           const suite = Suite.create(suites[0], title);
 
@@ -1411,8 +1493,8 @@
         };
 
         /**
-     * Exclusive test-case.
-     */
+         * Exclusive test-case.
+         */
 
         context.suite.only = function (title, fn) {
           const suite = context.suite(title, fn);
@@ -1421,10 +1503,10 @@
         };
 
         /**
-     * Describe a specification or test-case
-     * with the given `title` and callback `fn`
-     * acting as a thunk.
-     */
+         * Describe a specification or test-case
+         * with the given `title` and callback `fn`
+         * acting as a thunk.
+         */
 
         context.test = function (title, fn) {
           const suite = suites[0];
@@ -1440,8 +1522,8 @@
         };
 
         /**
-     * Exclusive test-case.
-     */
+         * Exclusive test-case.
+         */
 
         context.test.only = function (title, fn) {
           const test = context.test(title, fn);
@@ -1451,8 +1533,8 @@
         };
 
         /**
-     * Pending test case.
-     */
+         * Pending test case.
+         */
 
         context.test.skip = function (title) {
           context.test(title);
@@ -1463,28 +1545,28 @@
 
   require.register('mocha.js', (module, exports, require) => {
     /* !
- * mocha
- * Copyright(c) 2011 TJ Holowaychuk <tj@vision-media.ca>
- * MIT Licensed
- */
+     * mocha
+     * Copyright(c) 2011 TJ Holowaychuk <tj@vision-media.ca>
+     * MIT Licensed
+     */
 
     /**
- * Module dependencies.
- */
+     * Module dependencies.
+     */
 
     const path = require('browser/path');
     const escapeRe = require('browser/escape-string-regexp');
     const utils = require('./utils');
 
     /**
- * Expose `Mocha`.
- */
+     * Expose `Mocha`.
+     */
 
     exports = module.exports = Mocha;
 
     /**
- * To require local UIs and reporters when running in node.
- */
+     * To require local UIs and reporters when running in node.
+     */
 
     if (typeof process !== 'undefined' && typeof process.cwd === 'function') {
       const { join } = path;
@@ -1494,8 +1576,8 @@
     }
 
     /**
- * Expose internals.
- */
+     * Expose internals.
+     */
 
     exports.utils = utils;
     exports.interfaces = require('./interfaces');
@@ -1508,34 +1590,34 @@
     exports.Test = require('./test');
 
     /**
- * Return image `name` path.
- *
- * @param {String} name
- * @return {String}
- * @api private
- */
+     * Return image `name` path.
+     *
+     * @param {String} name
+     * @return {String}
+     * @api private
+     */
 
     function image(name) {
       return `${__dirname}/../images/${name}.png`;
     }
 
     /**
- * Setup mocha with `options`.
- *
- * Options:
- *
- *   - `ui` name "bdd", "tdd", "exports" etc
- *   - `reporter` reporter instance, defaults to `mocha.reporters.spec`
- *   - `globals` array of accepted globals
- *   - `timeout` timeout in milliseconds
- *   - `bail` bail on the first test failure
- *   - `slow` milliseconds to wait before considering a test slow
- *   - `ignoreLeaks` ignore global leaks
- *   - `grep` string or regexp to filter tests with
- *
- * @param {Object} options
- * @api public
- */
+     * Setup mocha with `options`.
+     *
+     * Options:
+     *
+     *   - `ui` name "bdd", "tdd", "exports" etc
+     *   - `reporter` reporter instance, defaults to `mocha.reporters.spec`
+     *   - `globals` array of accepted globals
+     *   - `timeout` timeout in milliseconds
+     *   - `bail` bail on the first test failure
+     *   - `slow` milliseconds to wait before considering a test slow
+     *   - `ignoreLeaks` ignore global leaks
+     *   - `grep` string or regexp to filter tests with
+     *
+     * @param {Object} options
+     * @api public
+     */
 
     function Mocha(options) {
       options = options || {};
@@ -1574,11 +1656,11 @@
     }
 
     /**
- * Enable or disable bailing on the first failure.
- *
- * @param {Boolean} [bail]
- * @api public
- */
+     * Enable or disable bailing on the first failure.
+     *
+     * @param {Boolean} [bail]
+     * @api public
+     */
 
     Mocha.prototype.bail = function (bail) {
       if (arguments.length == 0) {
@@ -1589,11 +1671,11 @@
     };
 
     /**
- * Add test `file`.
- *
- * @param {String} file
- * @api public
- */
+     * Add test `file`.
+     *
+     * @param {String} file
+     * @api public
+     */
 
     Mocha.prototype.addFile = function (file) {
       this.files.push(file);
@@ -1601,12 +1683,12 @@
     };
 
     /**
- * Set reporter to `reporter`, defaults to "spec".
- *
- * @param {String|Function} reporter name or constructor
- * @param {Object} reporterOptions optional options
- * @api public
- */
+     * Set reporter to `reporter`, defaults to "spec".
+     *
+     * @param {String|Function} reporter name or constructor
+     * @param {Object} reporterOptions optional options
+     * @api public
+     */
     Mocha.prototype.reporter = function (reporter, reporterOptions) {
       if (typeof reporter === 'function') {
         this._reporter = reporter;
@@ -1623,7 +1705,11 @@
           } catch (err) {}
         }
         if (!_reporter && reporter === 'teamcity') {
-          console.warn('The Teamcity reporter was moved to a package named ' + 'mocha-teamcity-reporter ' + '(https://npmjs.org/package/mocha-teamcity-reporter).');
+          console.warn(
+            'The Teamcity reporter was moved to a package named ' +
+              'mocha-teamcity-reporter ' +
+              '(https://npmjs.org/package/mocha-teamcity-reporter).',
+          );
         }
         if (!_reporter) {
           throw new Error(`invalid reporter "${reporter}"`);
@@ -1635,11 +1721,11 @@
     };
 
     /**
- * Set test UI `name`, defaults to "bdd".
- *
- * @param {String} bdd
- * @api public
- */
+     * Set test UI `name`, defaults to "bdd".
+     *
+     * @param {String} bdd
+     * @api public
+     */
 
     Mocha.prototype.ui = function (name) {
       name = name || 'bdd';
@@ -1657,10 +1743,10 @@
     };
 
     /**
- * Load registered files.
- *
- * @api private
- */
+     * Load registered files.
+     *
+     * @api private
+     */
 
     Mocha.prototype.loadFiles = function (fn) {
       const self = this;
@@ -1677,10 +1763,10 @@
     };
 
     /**
- * Enable growl support.
- *
- * @api private
- */
+     * Enable growl support.
+     *
+     * @api private
+     */
 
     Mocha.prototype._growl = function (runner, reporter) {
       const notify = require('growl');
@@ -1691,7 +1777,11 @@
         if (stats.failures) {
           const msg = `${stats.failures} of ${runner.total} tests failed`;
 
-          notify(msg, { name: 'mocha', title: 'Failed', image: image('error') });
+          notify(msg, {
+            name: 'mocha',
+            title: 'Failed',
+            image: image('error'),
+          });
         } else {
           notify(`${stats.passes} tests passed in ${stats.duration}ms`, {
             name: 'mocha',
@@ -1703,24 +1793,25 @@
     };
 
     /**
- * Add regexp to grep, if `re` is a string it is escaped.
- *
- * @param {RegExp|String} re
- * @return {Mocha}
- * @api public
- */
+     * Add regexp to grep, if `re` is a string it is escaped.
+     *
+     * @param {RegExp|String} re
+     * @return {Mocha}
+     * @api public
+     */
 
     Mocha.prototype.grep = function (re) {
-      this.options.grep = typeof re === 'string' ? new RegExp(escapeRe(re)) : re;
+      this.options.grep =
+        typeof re === 'string' ? new RegExp(escapeRe(re)) : re;
       return this;
     };
 
     /**
- * Invert `.grep()` matches.
- *
- * @return {Mocha}
- * @api public
- */
+     * Invert `.grep()` matches.
+     *
+     * @return {Mocha}
+     * @api public
+     */
 
     Mocha.prototype.invert = function () {
       this.options.invert = true;
@@ -1728,12 +1819,12 @@
     };
 
     /**
- * Ignore global leaks.
- *
- * @param {Boolean} ignore
- * @return {Mocha}
- * @api public
- */
+     * Ignore global leaks.
+     *
+     * @param {Boolean} ignore
+     * @return {Mocha}
+     * @api public
+     */
 
     Mocha.prototype.ignoreLeaks = function (ignore) {
       this.options.ignoreLeaks = !!ignore;
@@ -1741,11 +1832,11 @@
     };
 
     /**
- * Enable global leak checking.
- *
- * @return {Mocha}
- * @api public
- */
+     * Enable global leak checking.
+     *
+     * @return {Mocha}
+     * @api public
+     */
 
     Mocha.prototype.checkLeaks = function () {
       this.options.ignoreLeaks = false;
@@ -1753,11 +1844,11 @@
     };
 
     /**
- * Enable growl support.
- *
- * @return {Mocha}
- * @api public
- */
+     * Enable growl support.
+     *
+     * @return {Mocha}
+     * @api public
+     */
 
     Mocha.prototype.growl = function () {
       this.options.growl = true;
@@ -1765,12 +1856,12 @@
     };
 
     /**
- * Ignore `globals` array or string.
- *
- * @param {Array|String} globals
- * @return {Mocha}
- * @api public
- */
+     * Ignore `globals` array or string.
+     *
+     * @param {Array|String} globals
+     * @return {Mocha}
+     * @api public
+     */
 
     Mocha.prototype.globals = function (globals) {
       this.options.globals = (this.options.globals || []).concat(globals);
@@ -1778,12 +1869,12 @@
     };
 
     /**
- * Emit color output.
- *
- * @param {Boolean} colors
- * @return {Mocha}
- * @api public
- */
+     * Emit color output.
+     *
+     * @param {Boolean} colors
+     * @return {Mocha}
+     * @api public
+     */
 
     Mocha.prototype.useColors = function (colors) {
       if (colors !== undefined) {
@@ -1793,25 +1884,26 @@
     };
 
     /**
- * Use inline diffs rather than +/-.
- *
- * @param {Boolean} inlineDiffs
- * @return {Mocha}
- * @api public
- */
+     * Use inline diffs rather than +/-.
+     *
+     * @param {Boolean} inlineDiffs
+     * @return {Mocha}
+     * @api public
+     */
 
     Mocha.prototype.useInlineDiffs = function (inlineDiffs) {
-      this.options.useInlineDiffs = arguments.length && inlineDiffs != undefined ? inlineDiffs : false;
+      this.options.useInlineDiffs =
+        arguments.length && inlineDiffs != undefined ? inlineDiffs : false;
       return this;
     };
 
     /**
- * Set the timeout in milliseconds.
- *
- * @param {Number} timeout
- * @return {Mocha}
- * @api public
- */
+     * Set the timeout in milliseconds.
+     *
+     * @param {Number} timeout
+     * @return {Mocha}
+     * @api public
+     */
 
     Mocha.prototype.timeout = function (timeout) {
       this.suite.timeout(timeout);
@@ -1819,12 +1911,12 @@
     };
 
     /**
- * Set slowness threshold in milliseconds.
- *
- * @param {Number} slow
- * @return {Mocha}
- * @api public
- */
+     * Set slowness threshold in milliseconds.
+     *
+     * @param {Number} slow
+     * @return {Mocha}
+     * @api public
+     */
 
     Mocha.prototype.slow = function (slow) {
       this.suite.slow(slow);
@@ -1832,24 +1924,26 @@
     };
 
     /**
- * Enable timeouts.
- *
- * @param {Boolean} enabled
- * @return {Mocha}
- * @api public
- */
+     * Enable timeouts.
+     *
+     * @param {Boolean} enabled
+     * @return {Mocha}
+     * @api public
+     */
 
     Mocha.prototype.enableTimeouts = function (enabled) {
-      this.suite.enableTimeouts(arguments.length && enabled !== undefined ? enabled : true);
+      this.suite.enableTimeouts(
+        arguments.length && enabled !== undefined ? enabled : true,
+      );
       return this;
     };
 
     /**
- * Makes all tests async (accepting a callback)
- *
- * @return {Mocha}
- * @api public
- */
+     * Makes all tests async (accepting a callback)
+     *
+     * @return {Mocha}
+     * @api public
+     */
 
     Mocha.prototype.asyncOnly = function () {
       this.options.asyncOnly = true;
@@ -1857,22 +1951,22 @@
     };
 
     /**
- * Disable syntax highlighting (in browser).
- * @returns {Mocha}
- * @api public
- */
+     * Disable syntax highlighting (in browser).
+     * @returns {Mocha}
+     * @api public
+     */
     Mocha.prototype.noHighlighting = function () {
       this.options.noHighlighting = true;
       return this;
     };
 
     /**
- * Run tests and invoke `fn()` when complete.
- *
- * @param {Function} fn
- * @return {Runner}
- * @api public
- */
+     * Run tests and invoke `fn()` when complete.
+     *
+     * @param {Function} fn
+     * @return {Runner}
+     * @api public
+     */
 
     Mocha.prototype.run = function (fn) {
       if (this.files.length) {
@@ -1915,8 +2009,8 @@
 
   require.register('ms.js', (module, exports, require) => {
     /**
- * Helpers.
- */
+     * Helpers.
+     */
 
     const s = 1000;
     const m = s * 60;
@@ -1925,17 +2019,17 @@
     const y = d * 365.25;
 
     /**
- * Parse or format the given `val`.
- *
- * Options:
- *
- *  - `long` verbose formatting [false]
- *
- * @param {String|Number} val
- * @param {Object} options
- * @return {String|Number}
- * @api public
- */
+     * Parse or format the given `val`.
+     *
+     * Options:
+     *
+     *  - `long` verbose formatting [false]
+     *
+     * @param {String|Number} val
+     * @param {Object} options
+     * @return {String|Number}
+     * @api public
+     */
 
     module.exports = function (val, options) {
       options = options || {};
@@ -1946,15 +2040,17 @@
     };
 
     /**
- * Parse the given `str` and return milliseconds.
- *
- * @param {String} str
- * @return {Number}
- * @api private
- */
+     * Parse the given `str` and return milliseconds.
+     *
+     * @param {String} str
+     * @return {Number}
+     * @api private
+     */
 
     function parse(str) {
-      const match = /^((?:\d+)?\.?\d+) *(ms|seconds?|s|minutes?|m|hours?|h|days?|d|years?|y)?$/i.exec(str);
+      const match = /^((?:\d+)?\.?\d+) *(ms|seconds?|s|minutes?|m|hours?|h|days?|d|years?|y)?$/i.exec(
+        str,
+      );
 
       if (!match) {
         return;
@@ -1989,12 +2085,12 @@
     }
 
     /**
- * Short format for `ms`.
- *
- * @param {Number} ms
- * @return {String}
- * @api private
- */
+     * Short format for `ms`.
+     *
+     * @param {Number} ms
+     * @return {String}
+     * @api private
+     */
 
     function shortFormat(ms) {
       if (ms >= d) {
@@ -2013,20 +2109,26 @@
     }
 
     /**
- * Long format for `ms`.
- *
- * @param {Number} ms
- * @return {String}
- * @api private
- */
+     * Long format for `ms`.
+     *
+     * @param {Number} ms
+     * @return {String}
+     * @api private
+     */
 
     function longFormat(ms) {
-      return plural(ms, d, 'day') || plural(ms, h, 'hour') || plural(ms, m, 'minute') || plural(ms, s, 'second') || `${ms} ms`;
+      return (
+        plural(ms, d, 'day') ||
+        plural(ms, h, 'hour') ||
+        plural(ms, m, 'minute') ||
+        plural(ms, s, 'second') ||
+        `${ms} ms`
+      );
     }
 
     /**
- * Pluralization helper.
- */
+     * Pluralization helper.
+     */
 
     function plural(ms, n, name) {
       if (ms < n) {
@@ -2041,8 +2143,8 @@
 
   require.register('reporters/base.js', (module, exports, require) => {
     /**
- * Module dependencies.
- */
+     * Module dependencies.
+     */
 
     const tty = require('browser/tty');
     const diff = require('browser/diff');
@@ -2050,8 +2152,8 @@
     const utils = require('../utils');
 
     /**
- * Save timer references to avoid Sinon interfering (see GH-237).
- */
+     * Save timer references to avoid Sinon interfering (see GH-237).
+     */
 
     const { Date } = global;
     const { setTimeout } = global;
@@ -2060,32 +2162,32 @@
     const { clearInterval } = global;
 
     /**
- * Check if both stdio streams are associated with a tty.
- */
+     * Check if both stdio streams are associated with a tty.
+     */
 
     const isatty = tty.isatty(1) && tty.isatty(2);
 
     /**
- * Expose `Base`.
- */
+     * Expose `Base`.
+     */
 
     exports = module.exports = Base;
 
     /**
- * Enable coloring by default.
- */
+     * Enable coloring by default.
+     */
 
-    exports.useColors = isatty || (process.env.MOCHA_COLORS !== undefined);
+    exports.useColors = isatty || process.env.MOCHA_COLORS !== undefined;
 
     /**
- * Inline diffs instead of +/-
- */
+     * Inline diffs instead of +/-
+     */
 
     exports.inlineDiffs = false;
 
     /**
- * Default color map.
- */
+     * Default color map.
+     */
 
     exports.colors = {
       pass: 90,
@@ -2110,8 +2212,8 @@
     };
 
     /**
- * Default symbol map.
- */
+     * Default symbol map.
+     */
 
     exports.symbols = {
       ok: '✓',
@@ -2127,37 +2229,41 @@
     }
 
     /**
- * Color `str` with the given `type`,
- * allowing colors to be disabled,
- * as well as user-defined color
- * schemes.
- *
- * @param {String} type
- * @param {String} str
- * @return {String}
- * @api private
- */
+     * Color `str` with the given `type`,
+     * allowing colors to be disabled,
+     * as well as user-defined color
+     * schemes.
+     *
+     * @param {String} type
+     * @param {String} str
+     * @return {String}
+     * @api private
+     */
 
-    const color = exports.color = function (type, str) {
+    const color = (exports.color = function (type, str) {
       if (!exports.useColors) {
         return String(str);
       }
       return `\u001b[${exports.colors[type]}m${str}\u001b[0m`;
-    };
+    });
 
     /**
- * Expose term window size, with some
- * defaults for when stderr is not a tty.
- */
+     * Expose term window size, with some
+     * defaults for when stderr is not a tty.
+     */
 
     exports.window = {
-      width: isatty ? process.stdout.getWindowSize ? process.stdout.getWindowSize(1)[0] : tty.getWindowSize()[1] : 75,
+      width: isatty
+        ? process.stdout.getWindowSize
+          ? process.stdout.getWindowSize(1)[0]
+          : tty.getWindowSize()[1]
+        : 75,
     };
 
     /**
- * Expose some basic cursor interactions
- * that are common among reporters.
- */
+     * Expose some basic cursor interactions
+     * that are common among reporters.
+     */
 
     exports.cursor = {
       hide() {
@@ -2187,17 +2293,20 @@
     };
 
     /**
- * Outut the given `failures` as a list.
- *
- * @param {Array} failures
- * @api public
- */
+     * Outut the given `failures` as a list.
+     *
+     * @param {Array} failures
+     * @api public
+     */
 
     exports.list = function (failures) {
       console.log();
       failures.forEach((test, i) => {
         // format
-        let fmt = color('error title', '  %s) %s:\n') + color('error message', '     %s') + color('error stack', '\n%s\n');
+        let fmt =
+          color('error title', '  %s) %s:\n') +
+          color('error message', '     %s') +
+          color('error stack', '\n%s\n');
 
         // msg
         const { err } = test;
@@ -2222,7 +2331,9 @@
             err.expected = expected = utils.stringify(expected);
           }
 
-          fmt = color('error title', '  %s) %s:\n%s') + color('error stack', '\n%s\n');
+          fmt =
+            color('error title', '  %s) %s:\n%s') +
+            color('error stack', '\n%s\n');
           const match = message.match(/^([^:]+): expected/);
 
           msg = `\n      ${color('error message', match ? match[1] : msg)}`;
@@ -2235,31 +2346,34 @@
         }
 
         // indent stack trace without msg
-        stack = stack.slice(index ? index + 1 : index)
-          .replace(/^/gm, '  ');
+        stack = stack.slice(index ? index + 1 : index).replace(/^/gm, '  ');
 
-        console.log(fmt, (i + 1), test.fullTitle(), msg, stack);
+        console.log(fmt, i + 1, test.fullTitle(), msg, stack);
       });
     };
 
     /**
- * Initialize a new `Base` reporter.
- *
- * All other reporters generally
- * inherit from this reporter, providing
- * stats such as test duration, number
- * of tests passed / failed etc.
- *
- * @param {Runner} runner
- * @api public
- */
+     * Initialize a new `Base` reporter.
+     *
+     * All other reporters generally
+     * inherit from this reporter, providing
+     * stats such as test duration, number
+     * of tests passed / failed etc.
+     *
+     * @param {Runner} runner
+     * @api public
+     */
 
     function Base(runner) {
       const self = this;
-      const stats = this.stats = {
-        suites: 0, tests: 0, passes: 0, pending: 0, failures: 0,
-      };
-      const failures = this.failures = [];
+      const stats = (this.stats = {
+        suites: 0,
+        tests: 0,
+        passes: 0,
+        pending: 0,
+        failures: 0,
+      });
+      const failures = (this.failures = []);
 
       if (!runner) {
         return;
@@ -2287,7 +2401,12 @@
 
         const medium = test.slow() / 2;
 
-        test.speed = test.duration > test.slow() ? 'slow' : test.duration > medium ? 'medium' : 'fast';
+        test.speed =
+          test.duration > test.slow()
+            ? 'slow'
+            : test.duration > medium
+            ? 'medium'
+            : 'fast';
 
         stats.passes++;
       });
@@ -2310,11 +2429,11 @@
     }
 
     /**
- * Output common epilogue used by many of
- * the bundled reporters.
- *
- * @api public
- */
+     * Output common epilogue used by many of
+     * the bundled reporters.
+     *
+     * @api public
+     */
 
     Base.prototype.epilogue = function () {
       const { stats } = this;
@@ -2324,11 +2443,12 @@
       console.log();
 
       // passes
-      fmt = color('bright pass', ' ') + color('green', ' %d passing') + color('light', ' (%s)');
+      fmt =
+        color('bright pass', ' ') +
+        color('green', ' %d passing') +
+        color('light', ' (%s)');
 
-      console.log(fmt,
-        stats.passes || 0,
-        ms(stats.duration));
+      console.log(fmt, stats.passes || 0, ms(stats.duration));
 
       // pending
       if (stats.pending) {
@@ -2351,13 +2471,13 @@
     };
 
     /**
- * Pad the given `str` to `len`.
- *
- * @param {String} str
- * @param {String} len
- * @return {String}
- * @api private
- */
+     * Pad the given `str` to `len`.
+     *
+     * @param {String} str
+     * @param {String} len
+     * @return {String}
+     * @api private
+     */
 
     function pad(str, len) {
       str = String(str);
@@ -2365,12 +2485,12 @@
     }
 
     /**
- * Returns an inline diff between 2 strings with coloured ANSI output
- *
- * @param {Error} Error with actual/expected
- * @return {String} Diff
- * @api private
- */
+     * Returns an inline diff between 2 strings with coloured ANSI output
+     *
+     * @param {Error} Error with actual/expected
+     * @return {String} Diff
+     * @api private
+     */
 
     function inlineDiff(err, escape) {
       let msg = errorDiff(err, 'WordsWithSpace', escape);
@@ -2381,12 +2501,16 @@
       if (lines.length > 4) {
         const width = String(lines.length).length;
 
-        msg = lines.map((str, i) => `${pad(++i, width)} |` + ` ${str}`).join('\n');
+        msg = lines
+          .map((str, i) => `${pad(++i, width)} |` + ` ${str}`)
+          .join('\n');
       }
 
       // legend
-      msg = `\n${
-        color('diff removed', 'actual')} ${color('diff added', 'expected')}\n\n${msg}\n`;
+      msg = `\n${color('diff removed', 'actual')} ${color(
+        'diff added',
+        'expected',
+      )}\n\n${msg}\n`;
 
       // indent
       msg = msg.replace(/^/gm, '      ');
@@ -2394,12 +2518,12 @@
     }
 
     /**
- * Returns a unified diff between 2 strings
- *
- * @param {Error} Error with actual/expected
- * @return {String} Diff
- * @api private
- */
+     * Returns a unified diff between 2 strings
+     *
+     * @param {Error} Error with actual/expected
+     * @return {String} Diff
+     * @api private
+     */
 
     function unifiedDiff(err, escape) {
       const indent = '      ';
@@ -2428,68 +2552,75 @@
       msg = diff.createPatch('string', err.actual, err.expected);
       const lines = msg.split('\n').splice(4);
 
-      return `\n      ${
-        colorLines('diff added', '+ expected')} ${
-        colorLines('diff removed', '- actual')}\n\n${lines.map(cleanUp).filter(notBlank).join('\n')}`;
+      return `\n      ${colorLines('diff added', '+ expected')} ${colorLines(
+        'diff removed',
+        '- actual',
+      )}\n\n${lines.map(cleanUp).filter(notBlank).join('\n')}`;
     }
 
     /**
- * Return a character diff for `err`.
- *
- * @param {Error} err
- * @return {String}
- * @api private
- */
+     * Return a character diff for `err`.
+     *
+     * @param {Error} err
+     * @return {String}
+     * @api private
+     */
 
     function errorDiff(err, type, escape) {
       const actual = escape ? escapeInvisibles(err.actual) : err.actual;
       const expected = escape ? escapeInvisibles(err.expected) : err.expected;
 
-      return diff[`diff${type}`](actual, expected).map((str) => {
-        if (str.added) {
-          return colorLines('diff added', str.value);
-        }
-        if (str.removed) {
-          return colorLines('diff removed', str.value);
-        }
-        return str.value;
-      }).join('');
+      return diff[`diff${type}`](actual, expected)
+        .map((str) => {
+          if (str.added) {
+            return colorLines('diff added', str.value);
+          }
+          if (str.removed) {
+            return colorLines('diff removed', str.value);
+          }
+          return str.value;
+        })
+        .join('');
     }
 
     /**
- * Returns a string with all invisible characters in plain text
- *
- * @param {String} line
- * @return {String}
- * @api private
- */
+     * Returns a string with all invisible characters in plain text
+     *
+     * @param {String} line
+     * @return {String}
+     * @api private
+     */
     function escapeInvisibles(line) {
-      return line.replace(/\t/g, '<tab>')
+      return line
+        .replace(/\t/g, '<tab>')
         .replace(/\r/g, '<CR>')
         .replace(/\n/g, '<LF>\n');
     }
 
     /**
- * Color lines for `str`, using the color `name`.
- *
- * @param {String} name
- * @param {String} str
- * @return {String}
- * @api private
- */
+     * Color lines for `str`, using the color `name`.
+     *
+     * @param {String} name
+     * @param {String} str
+     * @return {String}
+     * @api private
+     */
 
     function colorLines(name, str) {
-      return str.split('\n').map((str) => color(name, str)).join('\n');
+      return str
+        .split('\n')
+        .map((str) => color(name, str))
+        .join('\n');
     }
 
     /**
- * Check that a / b have the same type.
- *
- * @param {Object} a
- * @param {Object} b
- * @return {Boolean}
- * @api private
- */
+     * Check that a / b have the same type.
+     *
+     * @param {Object} a
+     * @param {Object} b
+     * @return {Boolean}
+     * @api private
+     */
 
     function sameType(a, b) {
       a = Object.prototype.toString.call(a);
@@ -2500,24 +2631,24 @@
 
   require.register('reporters/doc.js', (module, exports, require) => {
     /**
- * Module dependencies.
- */
+     * Module dependencies.
+     */
 
     const Base = require('./base');
     const utils = require('../utils');
 
     /**
- * Expose `Doc`.
- */
+     * Expose `Doc`.
+     */
 
     exports = module.exports = Doc;
 
     /**
- * Initialize a new `Doc` reporter.
- *
- * @param {Runner} runner
- * @api public
- */
+     * Initialize a new `Doc` reporter.
+     *
+     * @param {Runner} runner
+     * @api public
+     */
 
     function Doc(runner) {
       Base.call(this, runner);
@@ -2560,42 +2691,54 @@
       });
 
       runner.on('fail', (test, err) => {
-        console.log('%s  <dt class="error">%s</dt>', indent(), utils.escape(test.title));
+        console.log(
+          '%s  <dt class="error">%s</dt>',
+          indent(),
+          utils.escape(test.title),
+        );
         const code = utils.escape(utils.clean(test.fn.toString()));
 
-        console.log('%s  <dd class="error"><pre><code>%s</code></pre></dd>', indent(), code);
-        console.log('%s  <dd class="error">%s</dd>', indent(), utils.escape(err));
+        console.log(
+          '%s  <dd class="error"><pre><code>%s</code></pre></dd>',
+          indent(),
+          code,
+        );
+        console.log(
+          '%s  <dd class="error">%s</dd>',
+          indent(),
+          utils.escape(err),
+        );
       });
     }
   }); // module: reporters/doc.js
 
   require.register('reporters/dot.js', (module, exports, require) => {
     /**
- * Module dependencies.
- */
+     * Module dependencies.
+     */
 
     const Base = require('./base');
     const { color } = Base;
 
     /**
- * Expose `Dot`.
- */
+     * Expose `Dot`.
+     */
 
     exports = module.exports = Dot;
 
     /**
- * Initialize a new `Dot` matrix test reporter.
- *
- * @param {Runner} runner
- * @api public
- */
+     * Initialize a new `Dot` matrix test reporter.
+     *
+     * @param {Runner} runner
+     * @api public
+     */
 
     function Dot(runner) {
       Base.call(this, runner);
 
       const self = this;
       const { stats } = this;
-      const width = Base.window.width * 0.75 | 0;
+      const width = (Base.window.width * 0.75) | 0;
       let n = -1;
 
       runner.on('start', () => {
@@ -2634,8 +2777,8 @@
     }
 
     /**
- * Inherit from `Base.prototype`.
- */
+     * Inherit from `Base.prototype`.
+     */
 
     function F() {}
     F.prototype = Base.prototype;
@@ -2645,24 +2788,24 @@
 
   require.register('reporters/html-cov.js', (module, exports, require) => {
     /**
- * Module dependencies.
- */
+     * Module dependencies.
+     */
 
     const JSONCov = require('./json-cov');
     const fs = require('browser/fs');
 
     /**
- * Expose `HTMLCov`.
- */
+     * Expose `HTMLCov`.
+     */
 
     exports = module.exports = HTMLCov;
 
     /**
- * Initialize a new `JsCoverage` reporter.
- *
- * @param {Runner} runner
- * @api public
- */
+     * Initialize a new `JsCoverage` reporter.
+     *
+     * @param {Runner} runner
+     * @api public
+     */
 
     function HTMLCov(runner) {
       const jade = require('jade');
@@ -2674,19 +2817,21 @@
       JSONCov.call(this, runner, false);
 
       runner.on('end', () => {
-        process.stdout.write(fn({
-          cov: self.cov,
-          coverageClass,
-        }));
+        process.stdout.write(
+          fn({
+            cov: self.cov,
+            coverageClass,
+          }),
+        );
       });
     }
 
     /**
- * Return coverage class for `n`.
- *
- * @return {String}
- * @api private
- */
+     * Return coverage class for `n`.
+     *
+     * @return {String}
+     * @api private
+     */
 
     function coverageClass(n) {
       if (n >= 75) {
@@ -2704,8 +2849,8 @@
 
   require.register('reporters/html.js', (module, exports, require) => {
     /**
- * Module dependencies.
- */
+     * Module dependencies.
+     */
 
     const Base = require('./base');
     const utils = require('../utils');
@@ -2713,8 +2858,8 @@
     const { escape } = utils;
 
     /**
- * Save timer references to avoid Sinon interfering (see GH-237).
- */
+     * Save timer references to avoid Sinon interfering (see GH-237).
+     */
 
     const { Date } = global;
     const { setTimeout } = global;
@@ -2723,23 +2868,29 @@
     const { clearInterval } = global;
 
     /**
- * Expose `HTML`.
- */
+     * Expose `HTML`.
+     */
 
     exports = module.exports = HTML;
 
     /**
- * Stats template.
- */
+     * Stats template.
+     */
 
-    const statsTemplate = '<ul id="mocha-stats">' + '<li class="progress"><canvas width="40" height="40"></canvas></li>' + '<li class="passes"><a href="#">passes:</a> <em>0</em></li>' + '<li class="failures"><a href="#">failures:</a> <em>0</em></li>' + '<li class="duration">duration: <em>0</em>s</li>' + '</ul>';
+    const statsTemplate =
+      '<ul id="mocha-stats">' +
+      '<li class="progress"><canvas width="40" height="40"></canvas></li>' +
+      '<li class="passes"><a href="#">passes:</a> <em>0</em></li>' +
+      '<li class="failures"><a href="#">failures:</a> <em>0</em></li>' +
+      '<li class="duration">duration: <em>0</em>s</li>' +
+      '</ul>';
 
     /**
- * Initialize a new `HTML` reporter.
- *
- * @param {Runner} runner
- * @api public
- */
+     * Initialize a new `HTML` reporter.
+     *
+     * @param {Runner} runner
+     * @api public
+     */
 
     function HTML(runner) {
       Base.call(this, runner);
@@ -2813,7 +2964,11 @@
 
         // suite
         const url = self.suiteURL(suite);
-        const el = fragment('<li class="suite"><h1><a href="%s">%s</a></h1></li>', url, escape(suite.title));
+        const el = fragment(
+          '<li class="suite"><h1><a href="%s">%s</a></h1></li>',
+          url,
+          escape(suite.title),
+        );
 
         // container
         stack[0].appendChild(el);
@@ -2836,7 +2991,7 @@
 
       runner.on('test end', function (test) {
         // TODO: add to stats
-        const percent = stats.tests / this.total * 100 | 0;
+        const percent = ((stats.tests / this.total) * 100) | 0;
 
         if (progress) {
           progress.update(percent).draw(ctx);
@@ -2852,11 +3007,24 @@
         // test
         if (test.state == 'passed') {
           const url = self.testURL(test);
-          var el = fragment('<li class="test pass %e"><h2>%e<span class="duration">%ems</span> <a href="%s" class="replay">‣</a></h2></li>', test.speed, test.title, test.duration, url);
+          var el = fragment(
+            '<li class="test pass %e"><h2>%e<span class="duration">%ems</span> <a href="%s" class="replay">‣</a></h2></li>',
+            test.speed,
+            test.title,
+            test.duration,
+            url,
+          );
         } else if (test.pending) {
-          var el = fragment('<li class="test pass pending"><h2>%e</h2></li>', test.title);
+          var el = fragment(
+            '<li class="test pass pending"><h2>%e</h2></li>',
+            test.title,
+          );
         } else {
-          var el = fragment('<li class="test fail"><h2>%e <a href="%e" class="replay">‣</a></h2></li>', test.title, self.testURL(test));
+          var el = fragment(
+            '<li class="test fail"><h2>%e <a href="%e" class="replay">‣</a></h2></li>',
+            test.title,
+            self.testURL(test),
+          );
           let str = test.err.stack || test.err.toString();
 
           // FF / Opera do not add the message
@@ -2871,7 +3039,11 @@
           }
 
           // Safari doesn't give you a stack. Let's at least provide a source line.
-          if (!test.err.stack && test.err.sourceURL && test.err.line !== undefined) {
+          if (
+            !test.err.stack &&
+            test.err.sourceURL &&
+            test.err.line !== undefined
+          ) {
             str += `\n(${test.err.sourceURL}:${test.err.line})`;
           }
 
@@ -2887,7 +3059,10 @@
             pre.style.display = pre.style.display == 'none' ? 'block' : 'none';
           });
 
-          var pre = fragment('<pre><code>%e</code></pre>', utils.clean(test.fn.toString()));
+          var pre = fragment(
+            '<pre><code>%e</code></pre>',
+            utils.clean(test.fn.toString()),
+          );
 
           el.appendChild(pre);
           pre.style.display = 'none';
@@ -2901,46 +3076,50 @@
     }
 
     /**
- * Makes a URL, preserving querystring ("search") parameters.
- * @param {string} s
- * @returns {string} your new URL
- */
+     * Makes a URL, preserving querystring ("search") parameters.
+     * @param {string} s
+     * @returns {string} your new URL
+     */
     const makeUrl = function makeUrl(s) {
       const { search } = window.location;
 
-      return `${window.location.pathname + (search ? `${search}&` : '?')}grep=${encodeURIComponent(s)}`;
+      return `${
+        window.location.pathname + (search ? `${search}&` : '?')
+      }grep=${encodeURIComponent(s)}`;
     };
 
     /**
- * Provide suite URL
- *
- * @param {Object} [suite]
- */
+     * Provide suite URL
+     *
+     * @param {Object} [suite]
+     */
     HTML.prototype.suiteURL = function (suite) {
       return makeUrl(suite.fullTitle());
     };
 
     /**
- * Provide test URL
- *
- * @param {Object} [test]
- */
+     * Provide test URL
+     *
+     * @param {Object} [test]
+     */
 
     HTML.prototype.testURL = function (test) {
       return makeUrl(test.fullTitle());
     };
 
     /**
- * Display error `msg`.
- */
+     * Display error `msg`.
+     */
 
     function error(msg) {
-      document.body.appendChild(fragment('<div id="mocha-error">%s</div>', msg));
+      document.body.appendChild(
+        fragment('<div id="mocha-error">%s</div>', msg),
+      );
     }
 
     /**
- * Return a DOM fragment from `html`.
- */
+     * Return a DOM fragment from `html`.
+     */
 
     function fragment(html) {
       const args = arguments;
@@ -2949,8 +3128,10 @@
 
       div.innerHTML = html.replace(/%([se])/g, (_, type) => {
         switch (type) {
-          case 's': return String(args[i++]);
-          case 'e': return escape(args[i++]);
+          case 's':
+            return String(args[i++]);
+          case 'e':
+            return escape(args[i++]);
         }
       });
 
@@ -2958,9 +3139,9 @@
     }
 
     /**
- * Check for suites that do not have elements
- * with `classname`, and hide them.
- */
+     * Check for suites that do not have elements
+     * with `classname`, and hide them.
+     */
 
     function hideSuitesWithout(classname) {
       const suites = document.getElementsByClassName('suite');
@@ -2975,8 +3156,8 @@
     }
 
     /**
- * Unhide .hidden suites.
- */
+     * Unhide .hidden suites.
+     */
 
     function unhide() {
       const els = document.getElementsByClassName('suite hidden');
@@ -2987,8 +3168,8 @@
     }
 
     /**
- * Set `el` text to `str`.
- */
+     * Set `el` text to `str`.
+     */
 
     function text(el, str) {
       if (el.textContent) {
@@ -2999,8 +3180,8 @@
     }
 
     /**
- * Listen on `event` with callback `fn`.
- */
+     * Listen on `event` with callback `fn`.
+     */
 
     function on(el, event, fn) {
       if (el.addEventListener) {
@@ -3033,24 +3214,24 @@
 
   require.register('reporters/json-cov.js', (module, exports, require) => {
     /**
- * Module dependencies.
- */
+     * Module dependencies.
+     */
 
     const Base = require('./base');
 
     /**
- * Expose `JSONCov`.
- */
+     * Expose `JSONCov`.
+     */
 
     exports = module.exports = JSONCov;
 
     /**
- * Initialize a new `JsCoverage` reporter.
- *
- * @param {Runner} runner
- * @param {Boolean} output
- * @api public
- */
+     * Initialize a new `JsCoverage` reporter.
+     *
+     * @param {Runner} runner
+     * @param {Boolean} output
+     * @api public
+     */
 
     function JSONCov(runner, output) {
       const self = this;
@@ -3076,7 +3257,7 @@
 
       runner.on('end', () => {
         const cov = global._$jscoverage || {};
-        const result = self.cov = map(cov);
+        const result = (self.cov = map(cov));
 
         result.stats = self.stats;
         result.tests = tests.map(clean);
@@ -3090,13 +3271,13 @@
     }
 
     /**
- * Map jscoverage data to a JSON structure
- * suitable for reporting.
- *
- * @param {Object} cov
- * @return {Object}
- * @api private
- */
+     * Map jscoverage data to a JSON structure
+     * suitable for reporting.
+     *
+     * @param {Object} cov
+     * @return {Object}
+     * @api private
+     */
 
     function map(cov) {
       const ret = {
@@ -3127,14 +3308,14 @@
     }
 
     /**
- * Map jscoverage data for a single source file
- * to a JSON structure suitable for reporting.
- *
- * @param {String} filename name of the source file
- * @param {Object} data jscoverage coverage data
- * @return {Object}
- * @api private
- */
+     * Map jscoverage data for a single source file
+     * to a JSON structure suitable for reporting.
+     *
+     * @param {String} filename name of the source file
+     * @param {Object} data jscoverage coverage data
+     * @return {Object}
+     * @api private
+     */
 
     function coverage(filename, data) {
       const ret = {
@@ -3163,19 +3344,19 @@
         };
       });
 
-      ret.coverage = ret.hits / ret.sloc * 100;
+      ret.coverage = (ret.hits / ret.sloc) * 100;
 
       return ret;
     }
 
     /**
- * Return a plain-object representation of `test`
- * free of cyclic properties etc.
- *
- * @param {Object} test
- * @return {Object}
- * @api private
- */
+     * Return a plain-object representation of `test`
+     * free of cyclic properties etc.
+     *
+     * @param {Object} test
+     * @return {Object}
+     * @api private
+     */
 
     function clean(test) {
       return {
@@ -3188,24 +3369,24 @@
 
   require.register('reporters/json-stream.js', (module, exports, require) => {
     /**
- * Module dependencies.
- */
+     * Module dependencies.
+     */
 
     const Base = require('./base');
     const { color } = Base;
 
     /**
- * Expose `List`.
- */
+     * Expose `List`.
+     */
 
     exports = module.exports = List;
 
     /**
- * Initialize a new `List` test reporter.
- *
- * @param {Runner} runner
- * @api public
- */
+     * Initialize a new `List` test reporter.
+     *
+     * @param {Runner} runner
+     * @api public
+     */
 
     function List(runner) {
       Base.call(this, runner);
@@ -3234,13 +3415,13 @@
     }
 
     /**
- * Return a plain-object representation of `test`
- * free of cyclic properties etc.
- *
- * @param {Object} test
- * @return {Object}
- * @api private
- */
+     * Return a plain-object representation of `test`
+     * free of cyclic properties etc.
+     *
+     * @param {Object} test
+     * @return {Object}
+     * @api private
+     */
 
     function clean(test) {
       return {
@@ -3253,25 +3434,25 @@
 
   require.register('reporters/json.js', (module, exports, require) => {
     /**
- * Module dependencies.
- */
+     * Module dependencies.
+     */
 
     const Base = require('./base');
     const { cursor } = Base;
     const { color } = Base;
 
     /**
- * Expose `JSON`.
- */
+     * Expose `JSON`.
+     */
 
     exports = module.exports = JSONReporter;
 
     /**
- * Initialize a new `JSON` reporter.
- *
- * @param {Runner} runner
- * @api public
- */
+     * Initialize a new `JSON` reporter.
+     *
+     * @param {Runner} runner
+     * @api public
+     */
 
     function JSONReporter(runner) {
       const self = this;
@@ -3315,13 +3496,13 @@
     }
 
     /**
- * Return a plain-object representation of `test`
- * free of cyclic properties etc.
- *
- * @param {Object} test
- * @return {Object}
- * @api private
- */
+     * Return a plain-object representation of `test`
+     * free of cyclic properties etc.
+     *
+     * @param {Object} test
+     * @return {Object}
+     * @api private
+     */
 
     function clean(test) {
       return {
@@ -3333,10 +3514,10 @@
     }
 
     /**
- * Transform `error` into a JSON object.
- * @param {Error} err
- * @return {Object}
- */
+     * Transform `error` into a JSON object.
+     * @param {Error} err
+     * @return {Object}
+     */
 
     function errorJSON(err) {
       const res = {};
@@ -3350,50 +3531,50 @@
 
   require.register('reporters/landing.js', (module, exports, require) => {
     /**
- * Module dependencies.
- */
+     * Module dependencies.
+     */
 
     const Base = require('./base');
     const { cursor } = Base;
     const { color } = Base;
 
     /**
- * Expose `Landing`.
- */
+     * Expose `Landing`.
+     */
 
     exports = module.exports = Landing;
 
     /**
- * Airplane color.
- */
+     * Airplane color.
+     */
 
     Base.colors.plane = 0;
 
     /**
- * Airplane crash color.
- */
+     * Airplane crash color.
+     */
 
     Base.colors['plane crash'] = 31;
 
     /**
- * Runway color.
- */
+     * Runway color.
+     */
 
     Base.colors.runway = 90;
 
     /**
- * Initialize a new `Landing` reporter.
- *
- * @param {Runner} runner
- * @api public
- */
+     * Initialize a new `Landing` reporter.
+     *
+     * @param {Runner} runner
+     * @api public
+     */
 
     function Landing(runner) {
       Base.call(this, runner);
 
       const self = this;
       const { stats } = this;
-      const width = Base.window.width * 0.75 | 0;
+      const width = (Base.window.width * 0.75) | 0;
       const { total } = runner;
       const stream = process.stdout;
       let plane = color('plane', '✈');
@@ -3413,7 +3594,7 @@
 
       runner.on('test end', (test) => {
         // check if the plane crashed
-        const col = crashed == -1 ? width * ++n / total | 0 : crashed;
+        const col = crashed == -1 ? ((width * ++n) / total) | 0 : crashed;
 
         // show the crash
         if (test.state == 'failed') {
@@ -3440,8 +3621,8 @@
     }
 
     /**
- * Inherit from `Base.prototype`.
- */
+     * Inherit from `Base.prototype`.
+     */
 
     function F() {}
     F.prototype = Base.prototype;
@@ -3451,25 +3632,25 @@
 
   require.register('reporters/list.js', (module, exports, require) => {
     /**
- * Module dependencies.
- */
+     * Module dependencies.
+     */
 
     const Base = require('./base');
     const { cursor } = Base;
     const { color } = Base;
 
     /**
- * Expose `List`.
- */
+     * Expose `List`.
+     */
 
     exports = module.exports = List;
 
     /**
- * Initialize a new `List` test reporter.
- *
- * @param {Runner} runner
- * @api public
- */
+     * Initialize a new `List` test reporter.
+     *
+     * @param {Runner} runner
+     * @api public
+     */
 
     function List(runner) {
       Base.call(this, runner);
@@ -3493,7 +3674,10 @@
       });
 
       runner.on('pass', (test) => {
-        const fmt = color('checkmark', `  ${Base.symbols.dot}`) + color('pass', ' %s: ') + color(test.speed, '%dms');
+        const fmt =
+          color('checkmark', `  ${Base.symbols.dot}`) +
+          color('pass', ' %s: ') +
+          color(test.speed, '%dms');
 
         cursor.CR();
         console.log(fmt, test.fullTitle(), test.duration);
@@ -3508,8 +3692,8 @@
     }
 
     /**
- * Inherit from `Base.prototype`.
- */
+     * Inherit from `Base.prototype`.
+     */
 
     function F() {}
     F.prototype = Base.prototype;
@@ -3519,30 +3703,30 @@
 
   require.register('reporters/markdown.js', (module, exports, require) => {
     /**
- * Module dependencies.
- */
+     * Module dependencies.
+     */
 
     const Base = require('./base');
     const utils = require('../utils');
 
     /**
- * Constants
- */
+     * Constants
+     */
 
     const SUITE_PREFIX = '$';
 
     /**
- * Expose `Markdown`.
- */
+     * Expose `Markdown`.
+     */
 
     exports = module.exports = Markdown;
 
     /**
- * Initialize a new `Markdown` reporter.
- *
- * @param {Runner} runner
- * @api public
- */
+     * Initialize a new `Markdown` reporter.
+     *
+     * @param {Runner} runner
+     * @api public
+     */
 
     function Markdown(runner) {
       Base.call(this, runner);
@@ -3629,23 +3813,23 @@
 
   require.register('reporters/min.js', (module, exports, require) => {
     /**
- * Module dependencies.
- */
+     * Module dependencies.
+     */
 
     const Base = require('./base');
 
     /**
- * Expose `Min`.
- */
+     * Expose `Min`.
+     */
 
     exports = module.exports = Min;
 
     /**
- * Initialize a new `Min` minimal test reporter (best used with --watch).
- *
- * @param {Runner} runner
- * @api public
- */
+     * Initialize a new `Min` minimal test reporter (best used with --watch).
+     *
+     * @param {Runner} runner
+     * @api public
+     */
 
     function Min(runner) {
       Base.call(this, runner);
@@ -3661,8 +3845,8 @@
     }
 
     /**
- * Inherit from `Base.prototype`.
- */
+     * Inherit from `Base.prototype`.
+     */
 
     function F() {}
     F.prototype = Base.prototype;
@@ -3672,37 +3856,38 @@
 
   require.register('reporters/nyan.js', (module, exports, require) => {
     /**
- * Module dependencies.
- */
+     * Module dependencies.
+     */
 
     const Base = require('./base');
 
     /**
- * Expose `Dot`.
- */
+     * Expose `Dot`.
+     */
 
     exports = module.exports = NyanCat;
 
     /**
- * Initialize a new `Dot` matrix test reporter.
- *
- * @param {Runner} runner
- * @api public
- */
+     * Initialize a new `Dot` matrix test reporter.
+     *
+     * @param {Runner} runner
+     * @api public
+     */
 
     function NyanCat(runner) {
       Base.call(this, runner);
       const self = this;
       const { stats } = this;
-      const width = Base.window.width * 0.75 | 0;
-      const rainbowColors = this.rainbowColors = self.generateColors();
-      const colorIndex = this.colorIndex = 0;
-      const numerOfLines = this.numberOfLines = 4;
-      const trajectories = this.trajectories = [[], [], [], []];
-      const nyanCatWidth = this.nyanCatWidth = 11;
-      const trajectoryWidthMax = this.trajectoryWidthMax = (width - nyanCatWidth);
-      const scoreboardWidth = this.scoreboardWidth = 5;
-      const tick = this.tick = 0;
+      const width = (Base.window.width * 0.75) | 0;
+      const rainbowColors = (this.rainbowColors = self.generateColors());
+      const colorIndex = (this.colorIndex = 0);
+      const numerOfLines = (this.numberOfLines = 4);
+      const trajectories = (this.trajectories = [[], [], [], []]);
+      const nyanCatWidth = (this.nyanCatWidth = 11);
+      const trajectoryWidthMax = (this.trajectoryWidthMax =
+        width - nyanCatWidth);
+      const scoreboardWidth = (this.scoreboardWidth = 5);
+      const tick = (this.tick = 0);
       const n = 0;
 
       runner.on('start', () => {
@@ -3732,10 +3917,10 @@
     }
 
     /**
- * Draw the nyan cat
- *
- * @api private
- */
+     * Draw the nyan cat
+     *
+     * @api private
+     */
 
     NyanCat.prototype.draw = function () {
       this.appendRainbow();
@@ -3746,11 +3931,11 @@
     };
 
     /**
- * Draw the "scoreboard" showing the number
- * of passes, failures and pending tests.
- *
- * @api private
- */
+     * Draw the "scoreboard" showing the number
+     * of passes, failures and pending tests.
+     *
+     * @api private
+     */
 
     NyanCat.prototype.drawScoreboard = function () {
       const { stats } = this;
@@ -3770,10 +3955,10 @@
     };
 
     /**
- * Append the rainbow.
- *
- * @api private
- */
+     * Append the rainbow.
+     *
+     * @api private
+     */
 
     NyanCat.prototype.appendRainbow = function () {
       const segment = this.tick ? '_' : '-';
@@ -3790,10 +3975,10 @@
     };
 
     /**
- * Draw the rainbow.
- *
- * @api private
- */
+     * Draw the rainbow.
+     *
+     * @api private
+     */
 
     NyanCat.prototype.drawRainbow = function () {
       const self = this;
@@ -3808,10 +3993,10 @@
     };
 
     /**
- * Draw the nyan cat
- *
- * @api private
- */
+     * Draw the nyan cat
+     *
+     * @api private
+     */
 
     NyanCat.prototype.drawNyanCat = function () {
       const self = this;
@@ -3845,60 +4030,62 @@
     };
 
     /**
- * Draw nyan cat face.
- *
- * @return {String}
- * @api private
- */
+     * Draw nyan cat face.
+     *
+     * @return {String}
+     * @api private
+     */
 
     NyanCat.prototype.face = function () {
       const { stats } = this;
 
       if (stats.failures) {
         return '( x .x)';
-      } if (stats.pending) {
+      }
+      if (stats.pending) {
         return '( o .o)';
-      } if (stats.passes) {
+      }
+      if (stats.passes) {
         return '( ^ .^)';
       }
       return '( - .-)';
     };
 
     /**
- * Move cursor up `n`.
- *
- * @param {Number} n
- * @api private
- */
+     * Move cursor up `n`.
+     *
+     * @param {Number} n
+     * @api private
+     */
 
     NyanCat.prototype.cursorUp = function (n) {
       write(`\u001b[${n}A`);
     };
 
     /**
- * Move cursor down `n`.
- *
- * @param {Number} n
- * @api private
- */
+     * Move cursor down `n`.
+     *
+     * @param {Number} n
+     * @api private
+     */
 
     NyanCat.prototype.cursorDown = function (n) {
       write(`\u001b[${n}B`);
     };
 
     /**
- * Generate rainbow colors.
- *
- * @return {Array}
- * @api private
- */
+     * Generate rainbow colors.
+     *
+     * @return {Array}
+     * @api private
+     */
 
     NyanCat.prototype.generateColors = function () {
       const colors = [];
 
-      for (let i = 0; i < (6 * 7); i++) {
+      for (let i = 0; i < 6 * 7; i++) {
         const pi3 = Math.floor(Math.PI / 3);
-        const n = (i * (1.0 / 6));
+        const n = i * (1.0 / 6);
         const r = Math.floor(3 * Math.sin(n) + 3);
         const g = Math.floor(3 * Math.sin(n + 2 * pi3) + 3);
         const b = Math.floor(3 * Math.sin(n + 4 * pi3) + 3);
@@ -3910,34 +4097,36 @@
     };
 
     /**
- * Apply rainbow to the given `str`.
- *
- * @param {String} str
- * @return {String}
- * @api private
- */
+     * Apply rainbow to the given `str`.
+     *
+     * @param {String} str
+     * @return {String}
+     * @api private
+     */
 
     NyanCat.prototype.rainbowify = function (str) {
       if (!Base.useColors) {
         return str;
       }
-      const color = this.rainbowColors[this.colorIndex % this.rainbowColors.length];
+      const color = this.rainbowColors[
+        this.colorIndex % this.rainbowColors.length
+      ];
 
       this.colorIndex += 1;
       return `\u001b[38;5;${color}m${str}\u001b[0m`;
     };
 
     /**
- * Stdout helper.
- */
+     * Stdout helper.
+     */
 
     function write(string) {
       process.stdout.write(string);
     }
 
     /**
- * Inherit from `Base.prototype`.
- */
+     * Inherit from `Base.prototype`.
+     */
 
     function F() {}
     F.prototype = Base.prototype;
@@ -3947,32 +4136,32 @@
 
   require.register('reporters/progress.js', (module, exports, require) => {
     /**
- * Module dependencies.
- */
+     * Module dependencies.
+     */
 
     const Base = require('./base');
     const { cursor } = Base;
     const { color } = Base;
 
     /**
- * Expose `Progress`.
- */
+     * Expose `Progress`.
+     */
 
     exports = module.exports = Progress;
 
     /**
- * General progress bar color.
- */
+     * General progress bar color.
+     */
 
     Base.colors.progress = 90;
 
     /**
- * Initialize a new `Progress` bar test reporter.
- *
- * @param {Runner} runner
- * @param {Object} options
- * @api public
- */
+     * Initialize a new `Progress` bar test reporter.
+     *
+     * @param {Runner} runner
+     * @param {Object} options
+     * @api public
+     */
 
     function Progress(runner, options) {
       Base.call(this, runner);
@@ -3980,7 +4169,7 @@
       const self = this;
       var options = options || {};
       const { stats } = this;
-      const width = Base.window.width * 0.50 | 0;
+      const width = (Base.window.width * 0.5) | 0;
       const { total } = runner;
       let complete = 0;
       const { max } = Math;
@@ -4004,7 +4193,7 @@
         complete++;
         const incomplete = total - complete;
         const percent = complete / total;
-        const n = width * percent | 0;
+        const n = (width * percent) | 0;
         const i = width - n;
 
         if (lastN === n && !options.verbose) {
@@ -4034,8 +4223,8 @@
     }
 
     /**
- * Inherit from `Base.prototype`.
- */
+     * Inherit from `Base.prototype`.
+     */
 
     function F() {}
     F.prototype = Base.prototype;
@@ -4045,25 +4234,25 @@
 
   require.register('reporters/spec.js', (module, exports, require) => {
     /**
- * Module dependencies.
- */
+     * Module dependencies.
+     */
 
     const Base = require('./base');
     const { cursor } = Base;
     const { color } = Base;
 
     /**
- * Expose `Spec`.
- */
+     * Expose `Spec`.
+     */
 
     exports = module.exports = Spec;
 
     /**
- * Initialize a new `Spec` test reporter.
- *
- * @param {Runner} runner
- * @api public
- */
+     * Initialize a new `Spec` test reporter.
+     *
+     * @param {Runner} runner
+     * @api public
+     */
 
     function Spec(runner) {
       Base.call(this, runner);
@@ -4101,12 +4290,19 @@
 
       runner.on('pass', (test) => {
         if (test.speed == 'fast') {
-          var fmt = indent() + color('checkmark', `  ${Base.symbols.ok}`) + color('pass', ' %s ');
+          var fmt =
+            indent() +
+            color('checkmark', `  ${Base.symbols.ok}`) +
+            color('pass', ' %s ');
 
           cursor.CR();
           console.log(fmt, test.title);
         } else {
-          var fmt = indent() + color('checkmark', `  ${Base.symbols.ok}`) + color('pass', ' %s ') + color(test.speed, '(%dms)');
+          var fmt =
+            indent() +
+            color('checkmark', `  ${Base.symbols.ok}`) +
+            color('pass', ' %s ') +
+            color(test.speed, '(%dms)');
 
           cursor.CR();
           console.log(fmt, test.title, test.duration);
@@ -4122,8 +4318,8 @@
     }
 
     /**
- * Inherit from `Base.prototype`.
- */
+     * Inherit from `Base.prototype`.
+     */
 
     function F() {}
     F.prototype = Base.prototype;
@@ -4133,25 +4329,25 @@
 
   require.register('reporters/tap.js', (module, exports, require) => {
     /**
- * Module dependencies.
- */
+     * Module dependencies.
+     */
 
     const Base = require('./base');
     const { cursor } = Base;
     const { color } = Base;
 
     /**
- * Expose `TAP`.
- */
+     * Expose `TAP`.
+     */
 
     exports = module.exports = TAP;
 
     /**
- * Initialize a new `TAP` reporter.
- *
- * @param {Runner} runner
- * @api public
- */
+     * Initialize a new `TAP` reporter.
+     *
+     * @param {Runner} runner
+     * @api public
+     */
 
     function TAP(runner) {
       Base.call(this, runner);
@@ -4197,12 +4393,12 @@
     }
 
     /**
- * Return a TAP-safe title of `test`
- *
- * @param {Object} test
- * @return {String}
- * @api private
- */
+     * Return a TAP-safe title of `test`
+     *
+     * @param {Object} test
+     * @return {String}
+     * @api private
+     */
 
     function title(test) {
       return test.fullTitle().replace(/#/g, '');
@@ -4211,8 +4407,8 @@
 
   require.register('reporters/xunit.js', (module, exports, require) => {
     /**
- * Module dependencies.
- */
+     * Module dependencies.
+     */
 
     const Base = require('./base');
     const utils = require('../utils');
@@ -4220,8 +4416,8 @@
     const { escape } = utils;
 
     /**
- * Save timer references to avoid Sinon interfering (see GH-237).
- */
+     * Save timer references to avoid Sinon interfering (see GH-237).
+     */
 
     const { Date } = global;
     const { setTimeout } = global;
@@ -4230,17 +4426,17 @@
     const { clearInterval } = global;
 
     /**
- * Expose `XUnit`.
- */
+     * Expose `XUnit`.
+     */
 
     exports = module.exports = XUnit;
 
     /**
- * Initialize a new `XUnit` reporter.
- *
- * @param {Runner} runner
- * @api public
- */
+     * Initialize a new `XUnit` reporter.
+     *
+     * @param {Runner} runner
+     * @api public
+     */
 
     function XUnit(runner, options) {
       Base.call(this, runner);
@@ -4268,15 +4464,21 @@
       });
 
       runner.on('end', () => {
-        self.write(tag('testsuite', {
-          name: 'Mocha Tests',
-          tests: stats.tests,
-          failures: stats.failures,
-          errors: stats.failures,
-          skipped: stats.tests - stats.failures - stats.passes,
-          timestamp: (new Date()).toUTCString(),
-          time: (stats.duration / 1000) || 0,
-        }, false));
+        self.write(
+          tag(
+            'testsuite',
+            {
+              name: 'Mocha Tests',
+              tests: stats.tests,
+              failures: stats.failures,
+              errors: stats.failures,
+              skipped: stats.tests - stats.failures - stats.passes,
+              timestamp: new Date().toUTCString(),
+              time: stats.duration / 1000 || 0,
+            },
+            false,
+          ),
+        );
 
         tests.forEach((t) => {
           self.test(t);
@@ -4286,8 +4488,8 @@
     }
 
     /**
- * Override done to close the stream (if it's a file).
- */
+     * Override done to close the stream (if it's a file).
+     */
     XUnit.prototype.done = function (failures, fn) {
       if (this.fileStream) {
         this.fileStream.end(() => {
@@ -4299,8 +4501,8 @@
     };
 
     /**
- * Inherit from `Base.prototype`.
- */
+     * Inherit from `Base.prototype`.
+     */
 
     function F() {}
     F.prototype = Base.prototype;
@@ -4308,8 +4510,8 @@
     XUnit.prototype.constructor = XUnit;
 
     /**
- * Write out the given line
- */
+     * Write out the given line
+     */
     XUnit.prototype.write = function (line) {
       if (this.fileStream) {
         this.fileStream.write(`${line}\n`);
@@ -4319,20 +4521,32 @@
     };
 
     /**
- * Output tag for the given `test.`
- */
+     * Output tag for the given `test.`
+     */
 
     XUnit.prototype.test = function (test, ostream) {
       const attrs = {
         classname: test.parent.fullTitle(),
         name: test.title,
-        time: (test.duration / 1000) || 0,
+        time: test.duration / 1000 || 0,
       };
 
       if (test.state == 'failed') {
         const { err } = test;
 
-        this.write(tag('testcase', attrs, false, tag('failure', {}, false, cdata(`${escape(err.message)}\n${err.stack}`))));
+        this.write(
+          tag(
+            'testcase',
+            attrs,
+            false,
+            tag(
+              'failure',
+              {},
+              false,
+              cdata(`${escape(err.message)}\n${err.stack}`),
+            ),
+          ),
+        );
       } else if (test.pending) {
         this.write(tag('testcase', attrs, false, tag('skipped', {}, true)));
       } else {
@@ -4341,8 +4555,8 @@
     };
 
     /**
- * HTML tag helper.
- */
+     * HTML tag helper.
+     */
 
     function tag(name, attrs, close, content) {
       const end = close ? '/>' : '>';
@@ -4361,8 +4575,8 @@
     }
 
     /**
- * Return cdata escaped CDATA `str`.
- */
+     * Return cdata escaped CDATA `str`.
+     */
 
     function cdata(str) {
       return `<![CDATA[${escape(str)}]]>`;
@@ -4371,8 +4585,8 @@
 
   require.register('runnable.js', (module, exports, require) => {
     /**
- * Module dependencies.
- */
+     * Module dependencies.
+     */
 
     const { EventEmitter } = require('browser/events');
     const debug = require('browser/debug')('mocha:runnable');
@@ -4380,8 +4594,8 @@
     const utils = require('./utils');
 
     /**
- * Save timer references to avoid Sinon interfering (see GH-237).
- */
+     * Save timer references to avoid Sinon interfering (see GH-237).
+     */
 
     const { Date } = global;
     const { setTimeout } = global;
@@ -4390,24 +4604,24 @@
     const { clearInterval } = global;
 
     /**
- * Object#toString().
- */
+     * Object#toString().
+     */
 
     const { toString } = Object.prototype;
 
     /**
- * Expose `Runnable`.
- */
+     * Expose `Runnable`.
+     */
 
     module.exports = Runnable;
 
     /**
- * Initialize a new `Runnable` with the given `title` and callback `fn`.
- *
- * @param {String} title
- * @param {Function} fn
- * @api private
- */
+     * Initialize a new `Runnable` with the given `title` and callback `fn`.
+     *
+     * @param {String} title
+     * @param {Function} fn
+     * @api private
+     */
 
     function Runnable(title, fn) {
       this.title = title;
@@ -4422,8 +4636,8 @@
     }
 
     /**
- * Inherit from `EventEmitter.prototype`.
- */
+     * Inherit from `EventEmitter.prototype`.
+     */
 
     function F() {}
     F.prototype = EventEmitter.prototype;
@@ -4431,12 +4645,12 @@
     Runnable.prototype.constructor = Runnable;
 
     /**
- * Set & get timeout `ms`.
- *
- * @param {Number|String} ms
- * @return {Runnable|Number} ms or self
- * @api private
- */
+     * Set & get timeout `ms`.
+     *
+     * @param {Number|String} ms
+     * @return {Runnable|Number} ms or self
+     * @api private
+     */
 
     Runnable.prototype.timeout = function (ms) {
       if (arguments.length == 0) {
@@ -4457,12 +4671,12 @@
     };
 
     /**
- * Set & get slow `ms`.
- *
- * @param {Number|String} ms
- * @return {Runnable|Number} ms or self
- * @api private
- */
+     * Set & get slow `ms`.
+     *
+     * @param {Number|String} ms
+     * @return {Runnable|Number} ms or self
+     * @api private
+     */
 
     Runnable.prototype.slow = function (ms) {
       if (arguments.length === 0) {
@@ -4477,12 +4691,12 @@
     };
 
     /**
- * Set and & get timeout `enabled`.
- *
- * @param {Boolean} enabled
- * @return {Runnable|Boolean} enabled or self
- * @api private
- */
+     * Set and & get timeout `enabled`.
+     *
+     * @param {Boolean} enabled
+     * @return {Runnable|Boolean} enabled or self
+     * @api private
+     */
 
     Runnable.prototype.enableTimeouts = function (enabled) {
       if (arguments.length === 0) {
@@ -4494,54 +4708,58 @@
     };
 
     /**
- * Return the full title generated by recursively
- * concatenating the parent's full title.
- *
- * @return {String}
- * @api public
- */
+     * Return the full title generated by recursively
+     * concatenating the parent's full title.
+     *
+     * @return {String}
+     * @api public
+     */
 
     Runnable.prototype.fullTitle = function () {
       return `${this.parent.fullTitle()} ${this.title}`;
     };
 
     /**
- * Clear the timeout.
- *
- * @api private
- */
+     * Clear the timeout.
+     *
+     * @api private
+     */
 
     Runnable.prototype.clearTimeout = function () {
       clearTimeout(this.timer);
     };
 
     /**
- * Inspect the runnable void of private properties.
- *
- * @return {String}
- * @api private
- */
+     * Inspect the runnable void of private properties.
+     *
+     * @return {String}
+     * @api private
+     */
 
     Runnable.prototype.inspect = function () {
-      return JSON.stringify(this, (key, val) => {
-        if (key[0] == '_') {
-          return;
-        }
-        if (key == 'parent') {
-          return '#<Suite>';
-        }
-        if (key == 'ctx') {
-          return '#<Context>';
-        }
-        return val;
-      }, 2);
+      return JSON.stringify(
+        this,
+        (key, val) => {
+          if (key[0] == '_') {
+            return;
+          }
+          if (key == 'parent') {
+            return '#<Suite>';
+          }
+          if (key == 'ctx') {
+            return '#<Context>';
+          }
+          return val;
+        },
+        2,
+      );
     };
 
     /**
- * Reset the timeout.
- *
- * @api private
- */
+     * Reset the timeout.
+     *
+     * @api private
+     */
 
     Runnable.prototype.resetTimeout = function () {
       const self = this;
@@ -4561,10 +4779,10 @@
     };
 
     /**
- * Whitelist these globals for this test run
- *
- * @api private
- */
+     * Whitelist these globals for this test run
+     *
+     * @api private
+     */
     Runnable.prototype.globals = function (arr) {
       const self = this;
 
@@ -4572,11 +4790,11 @@
     };
 
     /**
- * Run the test and invoke `fn(err)`.
- *
- * @param {Function} fn
- * @api private
- */
+     * Run the test and invoke `fn(err)`.
+     *
+     * @param {Function} fn
+     * @api private
+     */
 
     Runnable.prototype.run = function (fn) {
       const self = this;
@@ -4596,7 +4814,13 @@
           return;
         }
         emitted = true;
-        self.emit('error', err || new Error('done() called multiple times; stacktrace may be inaccurate'));
+        self.emit(
+          'error',
+          err ||
+            new Error(
+              'done() called multiple times; stacktrace may be inaccurate',
+            ),
+        );
       }
 
       // finished
@@ -4627,12 +4851,19 @@
 
         try {
           this.fn.call(ctx, (err) => {
-            if (err instanceof Error || toString.call(err) === '[object Error]') {
+            if (
+              err instanceof Error ||
+              toString.call(err) === '[object Error]'
+            ) {
               return done(err);
             }
             if (err != null) {
               if (Object.prototype.toString.call(err) === '[object Object]') {
-                return done(new Error(`done() invoked with non-Error: ${JSON.stringify(err)}`));
+                return done(
+                  new Error(
+                    `done() invoked with non-Error: ${JSON.stringify(err)}`,
+                  ),
+                );
               }
               return done(new Error(`done() invoked with non-Error: ${err}`));
             }
@@ -4645,7 +4876,9 @@
       }
 
       if (this.asyncOnly) {
-        return done(new Error('--async-only option in use without declaring `done()`'));
+        return done(
+          new Error('--async-only option in use without declaring `done()`'),
+        );
       }
 
       // sync or promise-returning
@@ -4664,13 +4897,16 @@
 
         if (result && typeof result.then === 'function') {
           self.resetTimeout();
-          result
-            .then(() => {
+          result.then(
+            () => {
               done();
             },
             (reason) => {
-              done(reason || new Error('Promise rejected with no or falsy reason'));
-            });
+              done(
+                reason || new Error('Promise rejected with no or falsy reason'),
+              );
+            },
+          );
         } else {
           done();
         }
@@ -4680,8 +4916,8 @@
 
   require.register('runner.js', (module, exports, require) => {
     /**
- * Module dependencies.
- */
+     * Module dependencies.
+     */
 
     const { EventEmitter } = require('browser/events');
     const debug = require('browser/debug')('mocha:runner');
@@ -4691,8 +4927,8 @@
     const { keys } = utils;
 
     /**
- * Non-enumerable globals.
- */
+     * Non-enumerable globals.
+     */
 
     const globals = [
       'setTimeout',
@@ -4706,30 +4942,30 @@
     ];
 
     /**
- * Expose `Runner`.
- */
+     * Expose `Runner`.
+     */
 
     module.exports = Runner;
 
     /**
- * Initialize a `Runner` for the given `suite`.
- *
- * Events:
- *
- *   - `start`  execution started
- *   - `end`  execution complete
- *   - `suite`  (suite) test suite execution started
- *   - `suite end`  (suite) all tests (and sub-suites) have finished
- *   - `test`  (test) test execution started
- *   - `test end`  (test) test completed
- *   - `hook`  (hook) hook execution started
- *   - `hook end`  (hook) hook complete
- *   - `pass`  (test) test passed
- *   - `fail`  (test, err) test failed
- *   - `pending`  (test) test pending
- *
- * @api public
- */
+     * Initialize a `Runner` for the given `suite`.
+     *
+     * Events:
+     *
+     *   - `start`  execution started
+     *   - `end`  execution complete
+     *   - `suite`  (suite) test suite execution started
+     *   - `suite end`  (suite) all tests (and sub-suites) have finished
+     *   - `test`  (test) test execution started
+     *   - `test end`  (test) test completed
+     *   - `hook`  (hook) hook execution started
+     *   - `hook end`  (hook) hook complete
+     *   - `pass`  (test) test passed
+     *   - `fail`  (test, err) test failed
+     *   - `pending`  (test) test pending
+     *
+     * @api public
+     */
 
     function Runner(suite) {
       const self = this;
@@ -4750,17 +4986,17 @@
     }
 
     /**
- * Wrapper for setImmediate, process.nextTick, or browser polyfill.
- *
- * @param {Function} fn
- * @api private
- */
+     * Wrapper for setImmediate, process.nextTick, or browser polyfill.
+     *
+     * @param {Function} fn
+     * @api private
+     */
 
     Runner.immediately = global.setImmediate || process.nextTick;
 
     /**
- * Inherit from `EventEmitter.prototype`.
- */
+     * Inherit from `EventEmitter.prototype`.
+     */
 
     function F() {}
     F.prototype = EventEmitter.prototype;
@@ -4768,14 +5004,14 @@
     Runner.prototype.constructor = Runner;
 
     /**
- * Run tests with full titles matching `re`. Updates runner.total
- * with number of tests matched.
- *
- * @param {RegExp} re
- * @param {Boolean} invert
- * @return {Runner} for chaining
- * @api public
- */
+     * Run tests with full titles matching `re`. Updates runner.total
+     * with number of tests matched.
+     *
+     * @param {RegExp} re
+     * @param {Boolean} invert
+     * @return {Runner} for chaining
+     * @api public
+     */
 
     Runner.prototype.grep = function (re, invert) {
       debug('grep %s', re);
@@ -4786,13 +5022,13 @@
     };
 
     /**
- * Returns the number of tests matching the grep search for the
- * given suite.
- *
- * @param {Suite} suite
- * @return {Number}
- * @api public
- */
+     * Returns the number of tests matching the grep search for the
+     * given suite.
+     *
+     * @param {Suite} suite
+     * @return {Number}
+     * @api public
+     */
 
     Runner.prototype.grepTotal = function (suite) {
       const self = this;
@@ -4813,11 +5049,11 @@
     };
 
     /**
- * Return a list of global properties.
- *
- * @return {Array}
- * @api private
- */
+     * Return a list of global properties.
+     *
+     * @return {Array}
+     * @api private
+     */
 
     Runner.prototype.globalProps = function () {
       const props = utils.keys(global);
@@ -4834,12 +5070,12 @@
     };
 
     /**
- * Allow the given `arr` of globals.
- *
- * @param {Array} arr
- * @return {Runner} for chaining
- * @api public
- */
+     * Allow the given `arr` of globals.
+     *
+     * @param {Array} arr
+     * @return {Runner} for chaining
+     * @api public
+     */
 
     Runner.prototype.globals = function (arr) {
       if (arguments.length == 0) {
@@ -4851,10 +5087,10 @@
     };
 
     /**
- * Check for global variable leaks.
- *
- * @api private
- */
+     * Check for global variable leaks.
+     *
+     * @api private
+     */
 
     Runner.prototype.checkGlobals = function (test) {
       if (this.ignoreLeaks) {
@@ -4878,19 +5114,22 @@
       this._globals = this._globals.concat(leaks);
 
       if (leaks.length > 1) {
-        this.fail(test, new Error(`global leaks detected: ${leaks.join(', ')}`));
+        this.fail(
+          test,
+          new Error(`global leaks detected: ${leaks.join(', ')}`),
+        );
       } else if (leaks.length) {
         this.fail(test, new Error(`global leak detected: ${leaks[0]}`));
       }
     };
 
     /**
- * Fail the given `test`.
- *
- * @param {Test} test
- * @param {Error} err
- * @api private
- */
+     * Fail the given `test`.
+     *
+     * @param {Test} test
+     * @param {Error} err
+     * @api private
+     */
 
     Runner.prototype.fail = function (test, err) {
       ++this.failures;
@@ -4904,25 +5143,25 @@
     };
 
     /**
- * Fail the given `hook` with `err`.
- *
- * Hook failures work in the following pattern:
- * - If bail, then exit
- * - Failed `before` hook skips all tests in a suite and subsuites,
- *   but jumps to corresponding `after` hook
- * - Failed `before each` hook skips remaining tests in a
- *   suite and jumps to corresponding `after each` hook,
- *   which is run only once
- * - Failed `after` hook does not alter
- *   execution order
- * - Failed `after each` hook skips remaining tests in a
- *   suite and subsuites, but executes other `after each`
- *   hooks
- *
- * @param {Hook} hook
- * @param {Error} err
- * @api private
- */
+     * Fail the given `hook` with `err`.
+     *
+     * Hook failures work in the following pattern:
+     * - If bail, then exit
+     * - Failed `before` hook skips all tests in a suite and subsuites,
+     *   but jumps to corresponding `after` hook
+     * - Failed `before each` hook skips remaining tests in a
+     *   suite and jumps to corresponding `after each` hook,
+     *   which is run only once
+     * - Failed `after` hook does not alter
+     *   execution order
+     * - Failed `after each` hook skips remaining tests in a
+     *   suite and subsuites, but executes other `after each`
+     *   hooks
+     *
+     * @param {Hook} hook
+     * @param {Error} err
+     * @api private
+     */
 
     Runner.prototype.failHook = function (hook, err) {
       this.fail(hook, err);
@@ -4932,12 +5171,12 @@
     };
 
     /**
- * Run hook `name` callbacks and then invoke `fn()`.
- *
- * @param {String} name
- * @param {Function} function
- * @api private
- */
+     * Run hook `name` callbacks and then invoke `fn()`.
+     *
+     * @param {String} name
+     * @param {Function} function
+     * @api private
+     */
 
     Runner.prototype.hook = function (name, fn) {
       const { suite } = this;
@@ -4986,14 +5225,14 @@
     };
 
     /**
- * Run hook `name` for the given array of `suites`
- * in order, and callback `fn(err, errSuite)`.
- *
- * @param {String} name
- * @param {Array} suites
- * @param {Function} fn
- * @api private
- */
+     * Run hook `name` for the given array of `suites`
+     * in order, and callback `fn(err, errSuite)`.
+     *
+     * @param {String} name
+     * @param {Array} suites
+     * @param {Function} fn
+     * @api private
+     */
 
     Runner.prototype.hooks = function (name, suites, fn) {
       const self = this;
@@ -5023,12 +5262,12 @@
     };
 
     /**
- * Run hooks from the top level down.
- *
- * @param {String} name
- * @param {Function} fn
- * @api private
- */
+     * Run hooks from the top level down.
+     *
+     * @param {String} name
+     * @param {Function} fn
+     * @api private
+     */
 
     Runner.prototype.hookUp = function (name, fn) {
       const suites = [this.suite].concat(this.parents()).reverse();
@@ -5037,12 +5276,12 @@
     };
 
     /**
- * Run hooks from the bottom up.
- *
- * @param {String} name
- * @param {Function} fn
- * @api private
- */
+     * Run hooks from the bottom up.
+     *
+     * @param {String} name
+     * @param {Function} fn
+     * @api private
+     */
 
     Runner.prototype.hookDown = function (name, fn) {
       const suites = [this.suite].concat(this.parents());
@@ -5051,29 +5290,29 @@
     };
 
     /**
- * Return an array of parent Suites from
- * closest to furthest.
- *
- * @return {Array}
- * @api private
- */
+     * Return an array of parent Suites from
+     * closest to furthest.
+     *
+     * @return {Array}
+     * @api private
+     */
 
     Runner.prototype.parents = function () {
       let { suite } = this;
       const suites = [];
 
-      while (suite = suite.parent) {
+      while ((suite = suite.parent)) {
         suites.push(suite);
       }
       return suites;
     };
 
     /**
- * Run the current test and callback `fn(err)`.
- *
- * @param {Function} fn
- * @api private
- */
+     * Run the current test and callback `fn(err)`.
+     *
+     * @param {Function} fn
+     * @api private
+     */
 
     Runner.prototype.runTest = function (fn) {
       const { test } = this;
@@ -5094,13 +5333,13 @@
     };
 
     /**
- * Run tests in the given `suite` and invoke
- * the callback `fn()` when complete.
- *
- * @param {Suite} suite
- * @param {Function} fn
- * @api private
- */
+     * Run tests in the given `suite` and invoke
+     * the callback `fn()` when complete.
+     *
+     * @param {Suite} suite
+     * @param {Function} fn
+     * @api private
+     */
 
     Runner.prototype.runTests = function (suite, fn) {
       const self = this;
@@ -5173,7 +5412,7 @@
         }
 
         // execute test and hook(s)
-        self.emit('test', self.test = test);
+        self.emit('test', (self.test = test));
         self.hookDown('beforeEach', (err, errSuite) => {
           if (err) {
             return hookErr(err, errSuite, false);
@@ -5202,13 +5441,13 @@
     };
 
     /**
- * Run the given `suite` and invoke the
- * callback `fn()` when complete.
- *
- * @param {Suite} suite
- * @param {Function} fn
- * @api private
- */
+     * Run the given `suite` and invoke the
+     * callback `fn()` when complete.
+     *
+     * @param {Suite} suite
+     * @param {Function} fn
+     * @api private
+     */
 
     Runner.prototype.runSuite = function (suite, fn) {
       const total = this.grepTotal(suite);
@@ -5221,7 +5460,7 @@
         return fn();
       }
 
-      this.emit('suite', this.suite = suite);
+      this.emit('suite', (this.suite = suite));
 
       function next(errSuite) {
         if (errSuite) {
@@ -5265,17 +5504,23 @@
     };
 
     /**
- * Handle uncaught exceptions.
- *
- * @param {Error} err
- * @api private
- */
+     * Handle uncaught exceptions.
+     *
+     * @param {Error} err
+     * @api private
+     */
 
     Runner.prototype.uncaught = function (err) {
       if (err) {
-        debug('uncaught exception %s', err !== function () {
-          return this;
-        }.call(err) ? err : (err.message || err));
+        debug(
+          'uncaught exception %s',
+          err !==
+            function () {
+              return this;
+            }.call(err)
+            ? err
+            : err.message || err,
+        );
       } else {
         debug('uncaught undefined exception');
         err = utils.undefinedError();
@@ -5310,13 +5555,13 @@
     };
 
     /**
- * Run the root suite and invoke `fn(failures)`
- * on completion.
- *
- * @param {Function} fn
- * @return {Runner} for chaining
- * @api public
- */
+     * Run the root suite and invoke `fn(failures)`
+     * on completion.
+     *
+     * @param {Function} fn
+     * @return {Runner} for chaining
+     * @api public
+     */
 
     Runner.prototype.run = function (fn) {
       const self = this;
@@ -5349,24 +5594,24 @@
     };
 
     /**
- * Cleanly abort execution
- *
- * @return {Runner} for chaining
- * @api public
- */
+     * Cleanly abort execution
+     *
+     * @return {Runner} for chaining
+     * @api public
+     */
     Runner.prototype.abort = function () {
       debug('aborting');
       this._abort = true;
     };
 
     /**
- * Filter leaks with the given globals flagged as `ok`.
- *
- * @param {Array} ok
- * @param {Array} globals
- * @return {Array}
- * @api private
- */
+     * Filter leaks with the given globals flagged as `ok`.
+     *
+     * @param {Array} ok
+     * @param {Array} globals
+     * @return {Array}
+     * @api private
+     */
 
     function filterLeaks(ok, globals) {
       return filter(globals, (key) => {
@@ -5405,19 +5650,21 @@
     }
 
     /**
- * Array of globals dependent on the environment.
- *
- * @return {Array}
- * @api private
- */
+     * Array of globals dependent on the environment.
+     *
+     * @return {Array}
+     * @api private
+     */
 
     function extraGlobals() {
-      if (typeof (process) === 'object' && typeof (process.version) === 'string') {
-        const nodeVersion = process.version.split('.').reduce((a, v) => a << 8 | v);
+      if (typeof process === 'object' && typeof process.version === 'string') {
+        const nodeVersion = process.version
+          .split('.')
+          .reduce((a, v) => (a << 8) | v);
 
         // 'errno' was renamed to process._errno in v0.9.11.
 
-        if (nodeVersion < 0x00090B) {
+        if (nodeVersion < 0x00090b) {
           return ['errno'];
         }
       }
@@ -5428,8 +5675,8 @@
 
   require.register('suite.js', (module, exports, require) => {
     /**
- * Module dependencies.
- */
+     * Module dependencies.
+     */
 
     const { EventEmitter } = require('browser/events');
     const debug = require('browser/debug')('mocha:suite');
@@ -5438,23 +5685,23 @@
     const Hook = require('./hook');
 
     /**
- * Expose `Suite`.
- */
+     * Expose `Suite`.
+     */
 
     exports = module.exports = Suite;
 
     /**
- * Create a new `Suite` with the given `title`
- * and parent `Suite`. When a suite with the
- * same title is already present, that suite
- * is returned to provide nicer reporter
- * and more flexible meta-testing.
- *
- * @param {Suite} parent
- * @param {String} title
- * @return {Suite}
- * @api public
- */
+     * Create a new `Suite` with the given `title`
+     * and parent `Suite`. When a suite with the
+     * same title is already present, that suite
+     * is returned to provide nicer reporter
+     * and more flexible meta-testing.
+     *
+     * @param {Suite} parent
+     * @param {String} title
+     * @return {Suite}
+     * @api public
+     */
 
     exports.create = function (parent, title) {
       const suite = new Suite(title, parent.ctx);
@@ -5469,13 +5716,13 @@
     };
 
     /**
- * Initialize a new `Suite` with the given
- * `title` and `ctx`.
- *
- * @param {String} title
- * @param {Context} ctx
- * @api private
- */
+     * Initialize a new `Suite` with the given
+     * `title` and `ctx`.
+     *
+     * @param {String} title
+     * @param {Context} ctx
+     * @api private
+     */
 
     function Suite(title, parentContext) {
       this.title = title;
@@ -5498,8 +5745,8 @@
     }
 
     /**
- * Inherit from `EventEmitter.prototype`.
- */
+     * Inherit from `EventEmitter.prototype`.
+     */
 
     function F() {}
     F.prototype = EventEmitter.prototype;
@@ -5507,11 +5754,11 @@
     Suite.prototype.constructor = Suite;
 
     /**
- * Return a clone of this `Suite`.
- *
- * @return {Suite}
- * @api private
- */
+     * Return a clone of this `Suite`.
+     *
+     * @return {Suite}
+     * @api private
+     */
 
     Suite.prototype.clone = function () {
       const suite = new Suite(this.title);
@@ -5526,12 +5773,12 @@
     };
 
     /**
- * Set timeout `ms` or short-hand such as "2s".
- *
- * @param {Number|String} ms
- * @return {Suite|Number} for chaining
- * @api private
- */
+     * Set timeout `ms` or short-hand such as "2s".
+     *
+     * @param {Number|String} ms
+     * @return {Suite|Number} for chaining
+     * @api private
+     */
 
     Suite.prototype.timeout = function (ms) {
       if (arguments.length == 0) {
@@ -5549,12 +5796,12 @@
     };
 
     /**
-  * Set timeout `enabled`.
-  *
-  * @param {Boolean} enabled
-  * @return {Suite|Boolean} self or enabled
-  * @api private
-  */
+     * Set timeout `enabled`.
+     *
+     * @param {Boolean} enabled
+     * @return {Suite|Boolean} self or enabled
+     * @api private
+     */
 
     Suite.prototype.enableTimeouts = function (enabled) {
       if (arguments.length === 0) {
@@ -5566,12 +5813,12 @@
     };
 
     /**
- * Set slow `ms` or short-hand such as "2s".
- *
- * @param {Number|String} ms
- * @return {Suite|Number} for chaining
- * @api private
- */
+     * Set slow `ms` or short-hand such as "2s".
+     *
+     * @param {Number|String} ms
+     * @return {Suite|Number} for chaining
+     * @api private
+     */
 
     Suite.prototype.slow = function (ms) {
       if (arguments.length === 0) {
@@ -5586,12 +5833,12 @@
     };
 
     /**
- * Sets whether to bail after first error.
- *
- * @param {Boolean} bail
- * @return {Suite|Number} for chaining
- * @api private
- */
+     * Sets whether to bail after first error.
+     *
+     * @param {Boolean} bail
+     * @return {Suite|Number} for chaining
+     * @api private
+     */
 
     Suite.prototype.bail = function (bail) {
       if (arguments.length == 0) {
@@ -5603,12 +5850,12 @@
     };
 
     /**
- * Run `fn(test[, done])` before running tests.
- *
- * @param {Function} fn
- * @return {Suite} for chaining
- * @api private
- */
+     * Run `fn(test[, done])` before running tests.
+     *
+     * @param {Function} fn
+     * @return {Suite} for chaining
+     * @api private
+     */
 
     Suite.prototype.beforeAll = function (title, fn) {
       if (this.pending) {
@@ -5633,12 +5880,12 @@
     };
 
     /**
- * Run `fn(test[, done])` after running tests.
- *
- * @param {Function} fn
- * @return {Suite} for chaining
- * @api private
- */
+     * Run `fn(test[, done])` after running tests.
+     *
+     * @param {Function} fn
+     * @return {Suite} for chaining
+     * @api private
+     */
 
     Suite.prototype.afterAll = function (title, fn) {
       if (this.pending) {
@@ -5663,12 +5910,12 @@
     };
 
     /**
- * Run `fn(test[, done])` before each test case.
- *
- * @param {Function} fn
- * @return {Suite} for chaining
- * @api private
- */
+     * Run `fn(test[, done])` before each test case.
+     *
+     * @param {Function} fn
+     * @return {Suite} for chaining
+     * @api private
+     */
 
     Suite.prototype.beforeEach = function (title, fn) {
       if (this.pending) {
@@ -5693,12 +5940,12 @@
     };
 
     /**
- * Run `fn(test[, done])` after each test case.
- *
- * @param {Function} fn
- * @return {Suite} for chaining
- * @api private
- */
+     * Run `fn(test[, done])` after each test case.
+     *
+     * @param {Function} fn
+     * @return {Suite} for chaining
+     * @api private
+     */
 
     Suite.prototype.afterEach = function (title, fn) {
       if (this.pending) {
@@ -5723,12 +5970,12 @@
     };
 
     /**
- * Add a test `suite`.
- *
- * @param {Suite} suite
- * @return {Suite} for chaining
- * @api private
- */
+     * Add a test `suite`.
+     *
+     * @param {Suite} suite
+     * @return {Suite} for chaining
+     * @api private
+     */
 
     Suite.prototype.addSuite = function (suite) {
       suite.parent = this;
@@ -5742,12 +5989,12 @@
     };
 
     /**
- * Add a `test` to this suite.
- *
- * @param {Test} test
- * @return {Suite} for chaining
- * @api private
- */
+     * Add a `test` to this suite.
+     *
+     * @param {Test} test
+     * @return {Suite} for chaining
+     * @api private
+     */
 
     Suite.prototype.addTest = function (test) {
       test.parent = this;
@@ -5761,12 +6008,12 @@
     };
 
     /**
- * Return the full title generated by recursively
- * concatenating the parent's full title.
- *
- * @return {String}
- * @api public
- */
+     * Return the full title generated by recursively
+     * concatenating the parent's full title.
+     *
+     * @return {String}
+     * @api public
+     */
 
     Suite.prototype.fullTitle = function () {
       if (this.parent) {
@@ -5780,25 +6027,28 @@
     };
 
     /**
- * Return the total number of tests.
- *
- * @return {Number}
- * @api public
- */
+     * Return the total number of tests.
+     *
+     * @return {Number}
+     * @api public
+     */
 
     Suite.prototype.total = function () {
-      return utils.reduce(this.suites, (sum, suite) => sum + suite.total(), 0) + this.tests.length;
+      return (
+        utils.reduce(this.suites, (sum, suite) => sum + suite.total(), 0) +
+        this.tests.length
+      );
     };
 
     /**
- * Iterates through each suite recursively to find
- * all tests. Applies a function in the format
- * `fn(test)`.
- *
- * @param {Function} fn
- * @return {Suite}
- * @api private
- */
+     * Iterates through each suite recursively to find
+     * all tests. Applies a function in the format
+     * `fn(test)`.
+     *
+     * @param {Function} fn
+     * @return {Suite}
+     * @api private
+     */
 
     Suite.prototype.eachTest = function (fn) {
       utils.forEach(this.tests, fn);
@@ -5811,24 +6061,24 @@
 
   require.register('test.js', (module, exports, require) => {
     /**
- * Module dependencies.
- */
+     * Module dependencies.
+     */
 
     const Runnable = require('./runnable');
 
     /**
- * Expose `Test`.
- */
+     * Expose `Test`.
+     */
 
     module.exports = Test;
 
     /**
- * Initialize a new `Test` with the given `title` and callback `fn`.
- *
- * @param {String} title
- * @param {Function} fn
- * @api private
- */
+     * Initialize a new `Test` with the given `title` and callback `fn`.
+     *
+     * @param {String} title
+     * @param {Function} fn
+     * @api private
+     */
 
     function Test(title, fn) {
       Runnable.call(this, title, fn);
@@ -5837,8 +6087,8 @@
     }
 
     /**
- * Inherit from `Runnable.prototype`.
- */
+     * Inherit from `Runnable.prototype`.
+     */
 
     function F() {}
     F.prototype = Runnable.prototype;
@@ -5848,8 +6098,8 @@
 
   require.register('utils.js', (module, exports, require) => {
     /**
- * Module dependencies.
- */
+     * Module dependencies.
+     */
 
     const fs = require('browser/fs');
     const path = require('browser/path');
@@ -5860,18 +6110,18 @@
     const debug = require('browser/debug')('mocha:watch');
 
     /**
- * Ignored directories.
- */
+     * Ignored directories.
+     */
 
     const ignore = ['node_modules', '.git'];
 
     /**
- * Escape special characters in the given string of html.
- *
- * @param  {String} html
- * @return {String}
- * @api private
- */
+     * Escape special characters in the given string of html.
+     *
+     * @param  {String} html
+     * @return {String}
+     * @api private
+     */
 
     exports.escape = function (html) {
       return String(html)
@@ -5882,13 +6132,13 @@
     };
 
     /**
- * Array#forEach (<=IE8)
- *
- * @param {Array} array
- * @param {Function} fn
- * @param {Object} scope
- * @api private
- */
+     * Array#forEach (<=IE8)
+     *
+     * @param {Array} array
+     * @param {Function} fn
+     * @param {Object} scope
+     * @api private
+     */
 
     exports.forEach = function (arr, fn, scope) {
       for (let i = 0, l = arr.length; i < l; i++) {
@@ -5897,13 +6147,13 @@
     };
 
     /**
- * Array#map (<=IE8)
- *
- * @param {Array} array
- * @param {Function} fn
- * @param {Object} scope
- * @api private
- */
+     * Array#map (<=IE8)
+     *
+     * @param {Array} array
+     * @param {Function} fn
+     * @param {Object} scope
+     * @api private
+     */
 
     exports.map = function (arr, fn, scope) {
       const result = [];
@@ -5915,13 +6165,13 @@
     };
 
     /**
- * Array#indexOf (<=IE8)
- *
- * @parma {Array} arr
- * @param {Object} obj to find index of
- * @param {Number} start
- * @api private
- */
+     * Array#indexOf (<=IE8)
+     *
+     * @parma {Array} arr
+     * @param {Object} obj to find index of
+     * @param {Number} start
+     * @api private
+     */
 
     exports.indexOf = function (arr, obj, start) {
       for (let i = start || 0, l = arr.length; i < l; i++) {
@@ -5933,13 +6183,13 @@
     };
 
     /**
- * Array#reduce (<=IE8)
- *
- * @param {Array} array
- * @param {Function} fn
- * @param {Object} initial value
- * @api private
- */
+     * Array#reduce (<=IE8)
+     *
+     * @param {Array} array
+     * @param {Function} fn
+     * @param {Object} initial value
+     * @api private
+     */
 
     exports.reduce = function (arr, fn, val) {
       let rval = val;
@@ -5952,12 +6202,12 @@
     };
 
     /**
- * Array#filter (<=IE8)
- *
- * @param {Array} array
- * @param {Function} fn
- * @api private
- */
+     * Array#filter (<=IE8)
+     *
+     * @param {Array} array
+     * @param {Function} fn
+     * @api private
+     */
 
     exports.filter = function (arr, fn) {
       const ret = [];
@@ -5974,34 +6224,36 @@
     };
 
     /**
- * Object.keys (<=IE8)
- *
- * @param {Object} obj
- * @return {Array} keys
- * @api private
- */
+     * Object.keys (<=IE8)
+     *
+     * @param {Object} obj
+     * @return {Array} keys
+     * @api private
+     */
 
-    exports.keys = Object.keys || function (obj) {
-      const keys = [];
-      const has = Object.prototype.hasOwnProperty; // for `window` on <=IE8
+    exports.keys =
+      Object.keys ||
+      function (obj) {
+        const keys = [];
+        const has = Object.prototype.hasOwnProperty; // for `window` on <=IE8
 
-      for (const key in obj) {
-        if (has.call(obj, key)) {
-          keys.push(key);
+        for (const key in obj) {
+          if (has.call(obj, key)) {
+            keys.push(key);
+          }
         }
-      }
 
-      return keys;
-    };
+        return keys;
+      };
 
     /**
- * Watch the given `files` for changes
- * and invoke `fn(file)` on modification.
- *
- * @param {Array} files
- * @param {Function} fn
- * @api private
- */
+     * Watch the given `files` for changes
+     * and invoke `fn(file)` on modification.
+     *
+     * @param {Array} files
+     * @param {Function} fn
+     * @api private
+     */
 
     exports.watch = function (files, fn) {
       const options = { interval: 100 };
@@ -6017,19 +6269,19 @@
     };
 
     /**
- * Ignored files.
- */
+     * Ignored files.
+     */
 
     function ignored(path) {
       return !~ignore.indexOf(path);
     }
 
     /**
- * Lookup files in the given `dir`.
- *
- * @return {Array}
- * @api private
- */
+     * Lookup files in the given `dir`.
+     *
+     * @return {Array}
+     * @api private
+     */
 
     exports.files = function (dir, ext, ret) {
       ret = ret || [];
@@ -6052,12 +6304,12 @@
     };
 
     /**
- * Compute a slug from the given `str`.
- *
- * @param {String} str
- * @return {String}
- * @api private
- */
+     * Compute a slug from the given `str`.
+     *
+     * @param {String} str
+     * @return {String}
+     * @api private
+     */
 
     exports.slug = function (str) {
       return str
@@ -6067,19 +6319,23 @@
     };
 
     /**
- * Strip the function definition from `str`,
- * and re-indent for pre whitespace.
- */
+     * Strip the function definition from `str`,
+     * and re-indent for pre whitespace.
+     */
 
     exports.clean = function (str) {
       str = str
-        .replace(/\r\n?|[\n\u2028\u2029]/g, '\n').replace(/^\uFEFF/, '')
+        .replace(/\r\n?|[\n\u2028\u2029]/g, '\n')
+        .replace(/^\uFEFF/, '')
         .replace(/^function *\(.*\) *{|\(.*\) *=> *{?/, '')
         .replace(/\s+\}$/, '');
 
       const spaces = str.match(/^\n?( *)/)[1].length;
       const tabs = str.match(/^\n?(\t*)/)[1].length;
-      const re = new RegExp(`^\n?${tabs ? '\t' : ' '}{${tabs || spaces}}`, 'gm');
+      const re = new RegExp(
+        `^\n?${tabs ? '\t' : ' '}{${tabs || spaces}}`,
+        'gm',
+      );
 
       str = str.replace(re, '');
 
@@ -6087,43 +6343,47 @@
     };
 
     /**
- * Trim the given `str`.
- *
- * @param {String} str
- * @return {String}
- * @api private
- */
+     * Trim the given `str`.
+     *
+     * @param {String} str
+     * @return {String}
+     * @api private
+     */
 
     exports.trim = function (str) {
       return str.replace(/^\s+|\s+$/g, '');
     };
 
     /**
- * Parse the given `qs`.
- *
- * @param {String} qs
- * @return {Object}
- * @api private
- */
+     * Parse the given `qs`.
+     *
+     * @param {String} qs
+     * @return {Object}
+     * @api private
+     */
 
     exports.parseQuery = function (qs) {
-      return exports.reduce(qs.replace('?', '').split('&'), (obj, pair) => {
-        let i = pair.indexOf('=');
-        const key = pair.slice(0, i);
-        const val = pair.slice(++i);
+      return exports.reduce(
+        qs.replace('?', '').split('&'),
+        (obj, pair) => {
+          let i = pair.indexOf('=');
+          const key = pair.slice(0, i);
+          const val = pair.slice(++i);
 
-        obj[key] = decodeURIComponent(val);
-        return obj;
-      }, {});
+          obj[key] = decodeURIComponent(val);
+          return obj;
+        },
+        {},
+      );
     };
 
     /**
- * Highlight the given string of `js`.
- *
- * @param {String} js
- * @return {String}
- * @api private
- */
+     * Highlight the given string of `js`.
+     *
+     * @param {String} js
+     * @return {String}
+     * @api private
+     */
 
     function highlight(js) {
       return js
@@ -6133,16 +6393,22 @@
         .replace(/('.*?')/gm, '<span class="string">$1</span>')
         .replace(/(\d+\.\d+)/gm, '<span class="number">$1</span>')
         .replace(/(\d+)/gm, '<span class="number">$1</span>')
-        .replace(/\bnew[ \t]+(\w+)/gm, '<span class="keyword">new</span> <span class="init">$1</span>')
-        .replace(/\b(function|new|throw|return|var|if|else)\b/gm, '<span class="keyword">$1</span>');
+        .replace(
+          /\bnew[ \t]+(\w+)/gm,
+          '<span class="keyword">new</span> <span class="init">$1</span>',
+        )
+        .replace(
+          /\b(function|new|throw|return|var|if|else)\b/gm,
+          '<span class="keyword">$1</span>',
+        );
     }
 
     /**
- * Highlight the contents of tag `name`.
- *
- * @param {String} name
- * @api private
- */
+     * Highlight the contents of tag `name`.
+     *
+     * @param {String} name
+     * @api private
+     */
 
     exports.highlightTags = function (name) {
       const code = document.getElementById('mocha').getElementsByTagName(name);
@@ -6153,18 +6419,18 @@
     };
 
     /**
- * If a value could have properties, and has none, this function is called, which returns
- * a string representation of the empty value.
- *
- * Functions w/ no properties return `'[Function]'`
- * Arrays w/ length === 0 return `'[]'`
- * Objects w/ no properties return `'{}'`
- * All else: return result of `value.toString()`
- *
- * @param {*} value Value to inspect
- * @param {string} [type] The type of the value, if known.
- * @returns {string}
- */
+     * If a value could have properties, and has none, this function is called, which returns
+     * a string representation of the empty value.
+     *
+     * Functions w/ no properties return `'[Function]'`
+     * Arrays w/ length === 0 return `'[]'`
+     * Objects w/ no properties return `'{}'`
+     * All else: return result of `value.toString()`
+     *
+     * @param {*} value Value to inspect
+     * @param {string} [type] The type of the value, if known.
+     * @returns {string}
+     */
     const emptyRepresentation = function emptyRepresentation(value, type) {
       type = type || exports.type(value);
 
@@ -6181,47 +6447,48 @@
     };
 
     /**
- * Takes some variable and asks `{}.toString()` what it thinks it is.
- * @param {*} value Anything
- * @example
- * type({}) // 'object'
- * type([]) // 'array'
- * type(1) // 'number'
- * type(false) // 'boolean'
- * type(Infinity) // 'number'
- * type(null) // 'null'
- * type(new Date()) // 'date'
- * type(/foo/) // 'regexp'
- * type('type') // 'string'
- * type(global) // 'global'
- * @api private
- * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/toString
- * @returns {string}
- */
+     * Takes some variable and asks `{}.toString()` what it thinks it is.
+     * @param {*} value Anything
+     * @example
+     * type({}) // 'object'
+     * type([]) // 'array'
+     * type(1) // 'number'
+     * type(false) // 'boolean'
+     * type(Infinity) // 'number'
+     * type(null) // 'null'
+     * type(new Date()) // 'date'
+     * type(/foo/) // 'regexp'
+     * type('type') // 'string'
+     * type(global) // 'global'
+     * @api private
+     * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/toString
+     * @returns {string}
+     */
     exports.type = function type(value) {
       if (typeof Buffer !== 'undefined' && Buffer.isBuffer(value)) {
         return 'buffer';
       }
-      return Object.prototype.toString.call(value)
+      return Object.prototype.toString
+        .call(value)
         .replace(/^\[.+\s(.+?)\]$/, '$1')
         .toLowerCase();
     };
 
     /**
- * @summary Stringify `value`.
- * @description Different behavior depending on type of value.
- * - If `value` is undefined or null, return `'[undefined]'` or `'[null]'`, respectively.
- * - If `value` is not an object, function or array, return result of `value.toString()` wrapped in double-quotes.
- * - If `value` is an *empty* object, function, or array, return result of function
- *   {@link emptyRepresentation}.
- * - If `value` has properties, call {@link exports.canonicalize} on it, then return result of
- *   JSON.stringify().
- *
- * @see exports.type
- * @param {*} value
- * @return {string}
- * @api private
- */
+     * @summary Stringify `value`.
+     * @description Different behavior depending on type of value.
+     * - If `value` is undefined or null, return `'[undefined]'` or `'[null]'`, respectively.
+     * - If `value` is not an object, function or array, return result of `value.toString()` wrapped in double-quotes.
+     * - If `value` is an *empty* object, function, or array, return result of function
+     *   {@link emptyRepresentation}.
+     * - If `value` has properties, call {@link exports.canonicalize} on it, then return result of
+     *   JSON.stringify().
+     *
+     * @see exports.type
+     * @param {*} value
+     * @return {string}
+     * @api private
+     */
 
     exports.stringify = function (value) {
       let prop;
@@ -6241,7 +6508,10 @@
 
       for (prop in value) {
         if (value.hasOwnProperty(prop)) {
-          return JSON.stringify(exports.canonicalize(value), null, 2).replace(/,(\n|$)/g, '$1');
+          return JSON.stringify(exports.canonicalize(value), null, 2).replace(
+            /,(\n|$)/g,
+            '$1',
+          );
         }
       }
 
@@ -6249,32 +6519,32 @@
     };
 
     /**
- * Return if obj is a Buffer
- * @param {Object} arg
- * @return {Boolean}
- * @api private
- */
+     * Return if obj is a Buffer
+     * @param {Object} arg
+     * @return {Boolean}
+     * @api private
+     */
     exports.isBuffer = function (arg) {
       return typeof Buffer !== 'undefined' && Buffer.isBuffer(arg);
     };
 
     /**
- * @summary Return a new Thing that has the keys in sorted order.  Recursive.
- * @description If the Thing...
- * - has already been seen, return string `'[Circular]'`
- * - is `undefined`, return string `'[undefined]'`
- * - is `null`, return value `null`
- * - is some other primitive, return the value
- * - is not a primitive or an `Array`, `Object`, or `Function`, return the value of the Thing's `toString()` method
- * - is a non-empty `Array`, `Object`, or `Function`, return the result of calling this function again.
- * - is an empty `Array`, `Object`, or `Function`, return the result of calling `emptyRepresentation()`
- *
- * @param {*} value Thing to inspect.  May or may not have properties.
- * @param {Array} [stack=[]] Stack of seen values
- * @return {(Object|Array|Function|string|undefined)}
- * @see {@link exports.stringify}
- * @api private
- */
+     * @summary Return a new Thing that has the keys in sorted order.  Recursive.
+     * @description If the Thing...
+     * - has already been seen, return string `'[Circular]'`
+     * - is `undefined`, return string `'[undefined]'`
+     * - is `null`, return value `null`
+     * - is some other primitive, return the value
+     * - is not a primitive or an `Array`, `Object`, or `Function`, return the value of the Thing's `toString()` method
+     * - is a non-empty `Array`, `Object`, or `Function`, return the result of calling this function again.
+     * - is an empty `Array`, `Object`, or `Function`, return the result of calling `emptyRepresentation()`
+     *
+     * @param {*} value Thing to inspect.  May or may not have properties.
+     * @param {Array} [stack=[]] Stack of seen values
+     * @return {(Object|Array|Function|string|undefined)}
+     * @see {@link exports.stringify}
+     * @api private
+     */
 
     exports.canonicalize = function (value, stack) {
       let canonicalizedObj;
@@ -6302,7 +6572,9 @@
           break;
         case 'array':
           withStack(value, () => {
-            canonicalizedObj = exports.map(value, (item) => exports.canonicalize(item, stack));
+            canonicalizedObj = exports.map(value, (item) =>
+              exports.canonicalize(item, stack),
+            );
           });
           break;
         case 'date':
@@ -6317,7 +6589,7 @@
             canonicalizedObj = emptyRepresentation(value, type);
             break;
           }
-          /* falls through */
+        /* falls through */
         case 'object':
           canonicalizedObj = canonicalizedObj || {};
           withStack(value, () => {
@@ -6338,8 +6610,8 @@
     };
 
     /**
- * Lookup file names at the given `path`.
- */
+     * Lookup file names at the given `path`.
+     */
     exports.lookupFiles = function lookupFiles(path, extensions, recursive) {
       let files = [];
       const re = new RegExp(`\\.(${extensions.join('|')})$`);
@@ -6390,21 +6662,23 @@
     };
 
     /**
- * Generate an undefined error with a message warning the user.
- *
- * @return {Error}
- */
+     * Generate an undefined error with a message warning the user.
+     *
+     * @return {Error}
+     */
 
     exports.undefinedError = function () {
-      return new Error('Caught undefined error, did you throw without specifying what?');
+      return new Error(
+        'Caught undefined error, did you throw without specifying what?',
+      );
     };
 
     /**
- * Generate an undefined error if `err` is not defined.
- *
- * @param {Error} err
- * @return {Error}
- */
+     * Generate an undefined error if `err` is not defined.
+     *
+     * @param {Error} err
+     * @return {Error}
+     */
 
     exports.getError = function (err) {
       return err || exports.undefinedError();
@@ -6413,11 +6687,11 @@
   // The global object is "self" in Web Workers.
   var global = (function () {
     return this;
-  }());
+  })();
 
   /**
- * Save timer references to avoid Sinon interfering (see GH-237).
- */
+   * Save timer references to avoid Sinon interfering (see GH-237).
+   */
 
   const { Date } = global;
   const { setTimeout } = global;
@@ -6426,13 +6700,13 @@
   const { clearInterval } = global;
 
   /**
- * Node shims.
- *
- * These are meant only to allow
- * mocha.js to run untouched, not
- * to allow running node code in
- * the browser.
- */
+   * Node shims.
+   *
+   * These are meant only to allow
+   * mocha.js to run untouched, not
+   * to allow running node code in
+   * the browser.
+   */
 
   var process = {};
 
@@ -6444,9 +6718,9 @@
   const originalOnerrorHandler = global.onerror;
 
   /**
- * Remove uncaughtException listener.
- * Revert to original onerror handler if previously defined.
- */
+   * Remove uncaughtException listener.
+   * Revert to original onerror handler if previously defined.
+   */
 
   process.removeListener = function (e, fn) {
     if (e == 'uncaughtException') {
@@ -6464,8 +6738,8 @@
   };
 
   /**
- * Implements uncaughtException listener.
- */
+   * Implements uncaughtException listener.
+   */
 
   process.on = function (e, fn) {
     if (e == 'uncaughtException') {
@@ -6478,11 +6752,11 @@
   };
 
   /**
- * Expose mocha.
- */
+   * Expose mocha.
+   */
 
-  var Mocha = global.Mocha = require('mocha');
-  const mocha = global.mocha = new Mocha({ reporter: 'html' });
+  var Mocha = (global.Mocha = require('mocha'));
+  const mocha = (global.mocha = new Mocha({ reporter: 'html' }));
 
   // The BDD UI is registered by default, but no UI will be functional in the
   // browser without an explicit call to the overridden `mocha.ui` (see below).
@@ -6495,7 +6769,10 @@
   function timeslice() {
     const immediateStart = new Date().getTime();
 
-    while (immediateQueue.length && (new Date().getTime() - immediateStart) < 100) {
+    while (
+      immediateQueue.length &&
+      new Date().getTime() - immediateStart < 100
+    ) {
       immediateQueue.shift()();
     }
     if (immediateQueue.length) {
@@ -6506,8 +6783,8 @@
   }
 
   /**
- * High-performance override of Runner.immediately.
- */
+   * High-performance override of Runner.immediately.
+   */
 
   Mocha.Runner.immediately = function (callback) {
     immediateQueue.push(callback);
@@ -6517,10 +6794,10 @@
   };
 
   /**
- * Function to allow assertion libraries to throw errors directly into mocha.
- * This is useful when running tests in a browser because window.onerror will
- * only receive the 'message' attribute of the Error.
- */
+   * Function to allow assertion libraries to throw errors directly into mocha.
+   * This is useful when running tests in a browser because window.onerror will
+   * only receive the 'message' attribute of the Error.
+   */
   mocha.throwError = function (err) {
     Mocha.utils.forEach(uncaughtExceptionHandlers, (fn) => {
       fn(err);
@@ -6529,9 +6806,9 @@
   };
 
   /**
- * Override ui to ensure that the ui functions are initialized.
- * Normally this would happen in Mocha.prototype.loadFiles.
- */
+   * Override ui to ensure that the ui functions are initialized.
+   * Normally this would happen in Mocha.prototype.loadFiles.
+   */
 
   mocha.ui = function (ui) {
     Mocha.prototype.ui.call(this, ui);
@@ -6540,8 +6817,8 @@
   };
 
   /**
- * Setup mocha with the given setting options.
- */
+   * Setup mocha with the given setting options.
+   */
 
   mocha.setup = function (opts) {
     if (typeof opts === 'string') {
@@ -6554,8 +6831,8 @@
   };
 
   /**
- * Run mocha, returning the Runner.
- */
+   * Run mocha, returning the Runner.
+   */
 
   mocha.run = function (fn) {
     const { options } = mocha;
@@ -6575,7 +6852,11 @@
       // The DOM Document is not available in Web Workers.
       const { document } = global;
 
-      if (document && document.getElementById('mocha') && options.noHighlighting !== true) {
+      if (
+        document &&
+        document.getElementById('mocha') &&
+        options.noHighlighting !== true
+      ) {
         Mocha.utils.highlightTags('code');
       }
       if (fn) {
@@ -6585,8 +6866,8 @@
   };
 
   /**
- * Expose the process shim.
- */
+   * Expose the process shim.
+   */
 
   Mocha.process = process;
-}());
+})();

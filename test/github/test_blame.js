@@ -4,12 +4,35 @@ $(() => {
     callback: mocha.run,
     overlay: true,
     enterprise: '',
-    debug_url: 'https://github.com/codecov/codecov-python/blame/097f692a0f02649a80de6c98749ca32a126223fc/codecov/clover.py',
+    debug_url:
+      'https://github.com/codecov/codecov-python/blame/097f692a0f02649a80de6c98749ca32a126223fc/codecov/clover.py',
   });
 });
 
-const coverage = ['hit', null, 'hit', null, 'hit', 'hit', 'hit', 'hit', 'partial', 'missed', 'partial', 'missed',
-  null, 'hit', null, 'partial', 'missed', null, 'hit', null, 'hit', null];
+const coverage = [
+  'hit',
+  null,
+  'hit',
+  null,
+  'hit',
+  'hit',
+  'hit',
+  'hit',
+  'partial',
+  'missed',
+  'partial',
+  'missed',
+  null,
+  'hit',
+  null,
+  'partial',
+  'missed',
+  null,
+  'hit',
+  null,
+  'hit',
+  null,
+];
 
 describe('gihub blame', () => {
   after(() => {

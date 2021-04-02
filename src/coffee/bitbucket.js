@@ -10,14 +10,23 @@
 window.Bitbucket = class Bitbucket extends Codecov {
   get_ref(href) {
     this.log('::get_ref');
-    this.service = (window.location.hostname === 'bitbucket.org') || (this.settings.debug_url != null) ? 'bb' : 'bbs';
+    this.service =
+      window.location.hostname === 'bitbucket.org' ||
+      this.settings.debug_url != null
+        ? 'bb'
+        : 'bbs';
 
     if (this.page === 'src') {
       return href[6].split('?')[0];
-    } if (this.page === 'commits') {
+    }
+    if (this.page === 'commits') {
       return href[6].split('?')[0];
-    } if (this.page === 'pull-requests') {
-      return __guard__($('.view-file:first').attr('href'), (x) => x.split('/')[4]);
+    }
+    if (this.page === 'pull-requests') {
+      return __guard__(
+        $('.view-file:first').attr('href'),
+        (x) => x.split('/')[4],
+      );
     }
 
     return false; // overlay available
@@ -43,19 +52,27 @@ title="Requesting coverage from Codecov.io">Coverage loading...</a>`);
 
     $('.codecov.codecov-removable').remove();
 
-    const report = __guard__(res != null ? res.commit : undefined, (x) => x.report) || __guard__(res != null ? res.head : undefined, (x1) => x1.report);
+    const report =
+      __guard__(res != null ? res.commit : undefined, (x) => x.report) ||
+      __guard__(res != null ? res.head : undefined, (x1) => x1.report);
 
     // tree view
     $('#source-list tr td.dirname').attr('colspan', 5);
     $('#source-list tr').each(function () {
-      const fp = __guard__($('a', this).attr('href'), (x2) => x2.split('?')[0].split('/').slice(5).join('/'));
-      const cov = __guard__(__guard__(report != null ? report.files : undefined, (x4) => x4[fp]), (x3) => x3.t.c);
+      const fp = __guard__($('a', this).attr('href'), (x2) =>
+        x2.split('?')[0].split('/').slice(5).join('/'),
+      );
+      const cov = __guard__(
+        __guard__(report != null ? report.files : undefined, (x4) => x4[fp]),
+        (x3) => x3.t.c,
+      );
 
       if (cov != null) {
-        return $('td.size', this)
-          .after(`\
+        return $('td.size', this).after(`\
 <td title="Coverage"
-    style="background:linear-gradient(90deg, ${self.bg(cov)} ${cov}%, white ${cov}%);text-align:right;"
+    style="background:linear-gradient(90deg, ${self.bg(
+      cov,
+    )} ${cov}%, white ${cov}%);text-align:right;"
     class="codecov codecov-removable">
   ${self.format(cov)}%
 </td>`);
@@ -68,18 +85,27 @@ title="Requesting coverage from Codecov.io">Coverage loading...</a>`);
     $('section.bb-udiff').each(function () {
       const $file = $(this);
       const fp = $file.attr('data-path');
-      const data = __guard__(report != null ? report.files : undefined, (x2) => x2[fp]);
+      const data = __guard__(
+        report != null ? report.files : undefined,
+        (x2) => x2[fp],
+      );
 
       if (data != null) {
         const button = $('.aui-button.codecov', this)
           .attr('title', 'Toggle Codecov')
           .text(`Coverage ${self.format(data.t.c)}%`)
-          .attr('data-codecov-url', `${self.settings.urls[self.urlid]}/${self.service}/${self.slug}/src/${self.ref}/${fp}`)
+          .attr(
+            'data-codecov-url',
+            `${self.settings.urls[self.urlid]}/${self.service}/${
+              self.slug
+            }/src/${self.ref}/${fp}`,
+          )
           .unbind()
           .click(self.toggle_diff);
 
         return $('.udiff-line.common, .udiff-line.addition', this)
-          .find('a.line-numbers').each(function () {
+          .find('a.line-numbers')
+          .each(function () {
             const a = $(this);
             let ln = a.attr('data-tnum');
 
@@ -89,7 +115,10 @@ title="Requesting coverage from Codecov.io">Coverage loading...</a>`);
             }
           });
       }
-      return $file.find('.aui-button.codecov').attr('title', 'File coverage not found').text('Not covered');
+      return $file
+        .find('.aui-button.codecov')
+        .attr('title', 'File coverage not found')
+        .text('Not covered');
     });
 
     // single file
@@ -97,12 +126,16 @@ title="Requesting coverage from Codecov.io">Coverage loading...</a>`);
       const $file = $(this);
       const fp = $file.attr('data-path');
       // find covered file
-      const file = __guard__(report != null ? report.files : undefined, (x2) => x2[fp]);
+      const file = __guard__(
+        report != null ? report.files : undefined,
+        (x2) => x2[fp],
+      );
       const filename = fp.split('/').pop();
 
       if (file != null) {
         // ... show diff not full file coverage for compare view
-        const button = $file.find('.aui-button.codecov')
+        const button = $file
+          .find('.aui-button.codecov')
           .attr('title', 'Toggle Codecov')
           .text(`Coverage ${self.format(file.t.c)}%`)
           .attr('data-codecov-url', '[TODO]')
@@ -113,7 +146,9 @@ title="Requesting coverage from Codecov.io">Coverage loading...</a>`);
         for (const ln in file.l) {
           const cov = file.l[ln];
 
-          $(`a[name='${filename}-${ln}']`, $file).addClass(`codecov codecov-${self.color(cov)}`);
+          $(`a[name='${filename}-${ln}']`, $file).addClass(
+            `codecov codecov-${self.color(cov)}`,
+          );
         }
 
         // toggle blob/blame
@@ -121,7 +156,8 @@ title="Requesting coverage from Codecov.io">Coverage loading...</a>`);
           return button.trigger('click');
         }
       } else {
-        return $file.find('.aui-button.codecov')
+        return $file
+          .find('.aui-button.codecov')
           .attr('title', 'File coverage not found')
           .attr('data-codecov-url', '[TODO]')
           .text('Not covered');
@@ -132,8 +168,9 @@ title="Requesting coverage from Codecov.io">Coverage loading...</a>`);
   toggle_coverage(e) {
     e.preventDefault();
     if (e.altKey || e.shiftKey) {
-      return window.location = $(this).attr('data-codecov-url');
-    } if ($('.codecov.codecov-on:first').length === 0) {
+      return (window.location = $(this).attr('data-codecov-url'));
+    }
+    if ($('.codecov.codecov-on:first').length === 0) {
       $('.codecov').addClass('codecov-on');
       return $(this).addClass('aui-button-light');
     }
@@ -143,21 +180,32 @@ title="Requesting coverage from Codecov.io">Coverage loading...</a>`);
 
   error(status, reason) {
     if (status === 401) {
-      return $('.aui-button.codecov').text('Please login at Codecov')
+      return $('.aui-button.codecov')
+        .text('Please login at Codecov')
         .addClass('aui-button-primary')
         .attr('title', 'Login to view coverage by Codecov')
-        .click(() => window.location = `https://codecov.io/login/github?redirect=${escape(window.location.href)}`);
-    } if (status === 404) {
-      return $('.aui-button.codecov').text('No coverage')
+        .click(
+          () =>
+            (window.location = `https://codecov.io/login/github?redirect=${escape(
+              window.location.href,
+            )}`),
+        );
+    }
+    if (status === 404) {
+      return $('.aui-button.codecov')
+        .text('No coverage')
         .attr('title', 'Coverage not found');
       // $('.commit.codecov .sha-block').addClass('tooltipped tooltipped-n').text('No coverage').attr('title', 'Coverage not found')
     }
-    return $('.aui-button.codecov').text('Coverage error')
+    return $('.aui-button.codecov')
+      .text('Coverage error')
       .attr('title', 'There was an error loading coverage. Sorry');
   }
 };
 // $('.commit.codecov .sha-block').addClass('tooltipped tooltipped-n').text('Coverage Error').attr('title', 'There was an error loading coverage. Sorry')
 
 function __guard__(value, transform) {
-  return (typeof value !== 'undefined' && value !== null) ? transform(value) : undefined;
+  return typeof value !== 'undefined' && value !== null
+    ? transform(value)
+    : undefined;
 }

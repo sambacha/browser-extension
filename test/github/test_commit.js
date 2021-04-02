@@ -4,7 +4,8 @@ $(() => {
     callback: mocha.run,
     overlay: true,
     enterprise: '',
-    debug_url: 'https://github.com/codecov/codecov-python/commit/91acfd99a5103ab16ff183a117a76c0d492c68a7',
+    debug_url:
+      'https://github.com/codecov/codecov-python/commit/91acfd99a5103ab16ff183a117a76c0d492c68a7',
   });
 });
 
@@ -26,7 +27,12 @@ describe('github compare', () => {
     expect($(buttons).eq(2).text()).to.equal('Not covered');
   });
   it('should show diff in toc', () => {
-    expect($('a[href="#diff-ed4cb86e1f4a5c5feeecc37b90ec6a23"]').parent().find('.diffstat .codecov').text()).to.equal('90.80% (50.00%)');
+    expect(
+      $('a[href="#diff-ed4cb86e1f4a5c5feeecc37b90ec6a23"]')
+        .parent()
+        .find('.diffstat .codecov')
+        .text(),
+    ).to.equal('90.80% (50.00%)');
   });
   it('should not be shown', () => {
     expect($('.codecov-on').length).to.equal(0);

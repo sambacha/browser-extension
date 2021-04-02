@@ -4,12 +4,35 @@ $(() => {
     callback: mocha.run,
     overlay: true,
     enterprise: '',
-    debug_url: 'https://github.com/codecov/codecov-python/blob/097f692a0f02649a80de6c98749ca32a126223fc/codecov/clover.py',
+    debug_url:
+      'https://github.com/codecov/codecov-python/blob/097f692a0f02649a80de6c98749ca32a126223fc/codecov/clover.py',
   });
 });
 
-const coverage = ['hit', null, 'hit', null, 'hit', 'hit', 'hit', 'hit', 'partial', 'missed', 'partial', 'missed',
-  null, 'hit', null, 'partial', 'missed', null, 'hit', null, 'hit', null];
+const coverage = [
+  'hit',
+  null,
+  'hit',
+  null,
+  'hit',
+  'hit',
+  'hit',
+  'hit',
+  'partial',
+  'missed',
+  'partial',
+  'missed',
+  null,
+  'hit',
+  null,
+  'partial',
+  'missed',
+  null,
+  'hit',
+  null,
+  'hit',
+  null,
+];
 
 describe('github blob', () => {
   after(() => {
@@ -27,7 +50,9 @@ describe('github blob', () => {
 
     expect(button.length).to.equal(1);
     expect(button.text()).to.equal('60.00%');
-    expect(button.attr('data-codecov-url')).to.equal('https://codecov.io/gh/codecov/codecov-python/codecov/clover.py?ref=097f692a0f02649a80de6c98749ca32a126223fc');
+    expect(button.attr('data-codecov-url')).to.equal(
+      'https://codecov.io/gh/codecov/codecov-python/codecov/clover.py?ref=097f692a0f02649a80de6c98749ca32a126223fc',
+    );
   });
   it('should still have all lines', () => {
     expect($('.file tr').length).to.equal(22);
