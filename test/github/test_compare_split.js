@@ -1,47 +1,52 @@
-$(function(){
-    window.cc = new Github({
-      "debug": true,
-      "callback": mocha.run,
-      "overlay": true,
-      "enterprise": '',
-      "debug_url": "https://github.com/codecov/codecov-python/compare/codecov:21dcc07...codecov:4c95614?diff=split"
-    });
+$(() => {
+  window.cc = new Github({
+    debug: true,
+    callback: mocha.run,
+    overlay: true,
+    enterprise: '',
+    debug_url: 'https://github.com/codecov/codecov-python/compare/codecov:21dcc07...codecov:4c95614?diff=split',
+  });
 });
 
-describe('github compare w/ split', function(){
-  after(function(){save_coverage('gh-compare-split');});
-  it('should have accurate properties', function(){
-      expect(window.cc.slug).to.equal('codecov/codecov-python');
-      expect(window.cc.file).to.equal(null);
-      expect(window.cc.ref).to.equal('4c95614');
-      expect(window.cc.base).to.equal('&base=fb55c9b');
+describe('github compare w/ split', () => {
+  after(() => {
+    save_coverage('gh-compare-split');
   });
-  it('should add coverage button', function(){
-    var buttons = $('.file-actions .btn-group a.btn.codecov');
+  it('should have accurate properties', () => {
+    expect(window.cc.slug).to.equal('codecov/codecov-python');
+    expect(window.cc.file).to.equal(null);
+    expect(window.cc.ref).to.equal('4c95614');
+    expect(window.cc.base).to.equal('&base=fb55c9b');
+  });
+  it('should add coverage button', () => {
+    const buttons = $('.file-actions .btn-group a.btn.codecov');
+
     expect(buttons.length).to.equal(8);
-    var text = ["Not covered", "Not covered", "Coverage 89.17% (Diff 83.33%)", "Coverage 60.00% (Diff 50.00%)", "Coverage 88.89% (Diff 100%)",
-                "Coverage 77.78% (Diff 73.33%)", "Not covered", "Not covered"];
-    buttons.each(function(){
+    const text = ['Not covered', 'Not covered', 'Coverage 89.17% (Diff 83.33%)', 'Coverage 60.00% (Diff 50.00%)', 'Coverage 88.89% (Diff 100%)',
+      'Coverage 77.78% (Diff 73.33%)', 'Not covered', 'Not covered'];
+
+    buttons.each(function () {
       expect($(this).text()).to.equal(text.shift());
     });
   });
-  it('should show diff in toc header', function(){
-    expect($('.toc-diff-stats .codecov').text()).to.equal(" Coverage 85.38% (Diff 77.14%)");
+  it('should show diff in toc header', () => {
+    expect($('.toc-diff-stats .codecov').text()).to.equal(' Coverage 85.38% (Diff 77.14%)');
   });
-  it('should show diff in toc', function(){
+  it('should show diff in toc', () => {
     expect($('a[href="#diff-ed4cb86e1f4a5c5feeecc37b90ec6a23"]').parent().find('.diffstat .codecov').text()).to.equal('89.17% (83.33%)');
     expect($('a[href="#diff-4b50cd5807f5f353de7e70825979d1be"]').parent().find('.diffstat .codecov').text()).to.equal('60.00% (50.00%)');
   });
-  it('should still have all lines', function(){
+  it('should still have all lines', () => {
     expect($('.file tr').length).to.equal(184);
   });
-  it('should not be shown', function(){
+  it('should not be shown', () => {
     expect($('.codecov-on').length).to.equal(0);
     expect($('.codecov.btn.selected').length).to.equal(0);
     expect($('.blob-num-deletion:visible').length).to.not.equal(0);
   });
-  it('click will toggle coverage', function(){
-    var file = $('.file-header[data-path="codecov/__init__.py"]');
+  it('click will toggle coverage', () => {
+    const file = $('.file-header[data-path="codecov/__init__.py"]');
+
     expect($('.codecov.btn', file).hasClass('selected')).to.equal(false);
     click($('.codecov.btn', file)[0]);
     expect($('.codecov.btn', file).hasClass('selected')).to.equal(true);

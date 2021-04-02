@@ -1,16 +1,18 @@
-$(function(){
-    window.cc = new Bitbucket({
-      "debug": true,
-      "callback": mocha.run,
-      "overlay": true,
-      "enterprise": '',
-      "debug_url": "https://bitbucket.org/osallou/go-docker/commits/7766b261f7cefae31688636b830fd3497fc80c05"
-    });
+$(() => {
+  window.cc = new Bitbucket({
+    debug: true,
+    callback: mocha.run,
+    overlay: true,
+    enterprise: '',
+    debug_url: 'https://bitbucket.org/osallou/go-docker/commits/7766b261f7cefae31688636b830fd3497fc80c05',
+  });
 });
 
-describe('bitbucket commit', function(){
-  after(function(){save_coverage('bb-commits');});
-  it('should start with no errors', function(){
+describe('bitbucket commit', () => {
+  after(() => {
+    save_coverage('bb-commits');
+  });
+  it('should start with no errors', () => {
     expect(window.cc).to.have.property('slug').and.to.equal('osallou/go-docker');
     expect(window.cc).to.have.property('ref').and.to.equal('7766b261f7cefae31688636b830fd3497fc80c05');
     expect(window.cc).to.have.property('page').and.to.equal('commits');
@@ -19,8 +21,9 @@ describe('bitbucket commit', function(){
   // it('shows coverage on individual files', function(){
 
   // });
-  it('should add coverage button', function(){
-    var button = $('a.aui-button.codecov');
+  it('should add coverage button', () => {
+    const button = $('a.aui-button.codecov');
+
     expect(button.length).to.equal(4);
     expect($('.line-numbers:eq(57)').hasClass('codecov-missed')).to.be.true;
     expect($('.line-numbers:eq(58)').hasClass('codecov')).to.be.false;

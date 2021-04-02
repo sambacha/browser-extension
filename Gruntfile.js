@@ -5,7 +5,7 @@
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-module.exports = function(grunt) {
+module.exports = function (grunt) {
   grunt.initConfig({
 
     // ----------
@@ -13,43 +13,41 @@ module.exports = function(grunt) {
     // ----------
     less: {
       default: {
-        files: { 'lib/codecov.css': 'src/less/*.less'
+        files: { 'lib/codecov.css': 'src/less/*.less' },
+        options: { compress: true, cleancss: true },
       },
-        options: { compress: true, cleancss: true
-      }
-      }
     },
 
     coffeecov: {
       options: {
-        path: 'relative'
+        path: 'relative',
       },
       dist: {
         src: 'src/coffee',
-        dest: 'lib-cov'
-      }
+        dest: 'lib-cov',
+      },
     },
 
     coffee: {
       default: {
         expand: true,
-        files: { 'lib/codecov.js': [
-          'src/coffee/codecov.coffee',
-          'src/coffee/github.coffee',
-          'src/coffee/bitbucket.coffee',
-          'src/coffee/gitlab.coffee'
-        ]
+        files: {
+          'lib/codecov.js': [
+            'src/coffee/codecov.coffee',
+            'src/coffee/github.coffee',
+            'src/coffee/bitbucket.coffee',
+            'src/coffee/gitlab.coffee',
+          ],
+        },
+        options: { bare: true },
       },
-        options: { bare: true
-      }
-      }
     },
 
     watch: {
       all: {
         files: ['src/**/*'],
-        tasks: 'build'
-      }
+        tasks: 'build',
+      },
     },
 
     // --------
@@ -61,39 +59,61 @@ module.exports = function(grunt) {
     copy: {
       chrome: {
         files: [
-          {expand: true, flatten: true, src: ['icons/*'], dest: 'tmp/chrome/icons/', filter: 'isFile'},
-          {expand: true, flatten: true, src: ['lib/*'], dest: 'tmp/chrome/lib'},
-          {expand: true, flatten: true, src: ['src/chrome/options.*'], dest: 'tmp/chrome/lib'},
-          {expand: true, flatten: true, src: ['src/chrome/listener.js'], dest: 'tmp/chrome/lib'},
-          {expand: true, flatten: true, src: ['src/chrome/manifest.json'], dest: './tmp/chrome/'}
-        ]
+          {
+            expand: true, flatten: true, src: ['icons/*'], dest: 'tmp/chrome/icons/', filter: 'isFile',
+          },
+          {
+            expand: true, flatten: true, src: ['lib/*'], dest: 'tmp/chrome/lib',
+          },
+          {
+            expand: true, flatten: true, src: ['src/chrome/options.*'], dest: 'tmp/chrome/lib',
+          },
+          {
+            expand: true, flatten: true, src: ['src/chrome/listener.js'], dest: 'tmp/chrome/lib',
+          },
+          {
+            expand: true, flatten: true, src: ['src/chrome/manifest.json'], dest: './tmp/chrome/',
+          },
+        ],
       },
       firefox: {
         files: [
-          {expand: true, flatten: true, src: ['icons/*'], dest: 'tmp/firefox/data/icons/', filter: 'isFile'},
-          {expand: true, flatten: true, src: ['lib/jquery-2.1.3.min.js', 'lib/codecov.js', 'lib/codecov.css'], dest: 'tmp/firefox/data'},
-          {expand: true, flatten: true, src: ['src/firefox/index.js'], dest: 'tmp/firefox'},
-          {expand: true, flatten: true, src: ['src/firefox/package.json'], dest: './tmp/firefox/'}
-        ]
+          {
+            expand: true, flatten: true, src: ['icons/*'], dest: 'tmp/firefox/data/icons/', filter: 'isFile',
+          },
+          {
+            expand: true, flatten: true, src: ['lib/jquery-2.1.3.min.js', 'lib/codecov.js', 'lib/codecov.css'], dest: 'tmp/firefox/data',
+          },
+          {
+            expand: true, flatten: true, src: ['src/firefox/index.js'], dest: 'tmp/firefox',
+          },
+          {
+            expand: true, flatten: true, src: ['src/firefox/package.json'], dest: './tmp/firefox/',
+          },
+        ],
       },
       safari: {
         files: [
-          {expand: true, flatten: true, src: ['icons/*'], dest: 'tmp/safari/codecov.safariextension/icons', filter: 'isFile'},
-          {expand: true, flatten: true, src: ['lib/jquery-2.1.3.min.js', 'lib/codecov.js', 'lib/codecov.css'], dest: 'tmp/safari/codecov.safariextension'}
-        ]
-      }
+          {
+            expand: true, flatten: true, src: ['icons/*'], dest: 'tmp/safari/codecov.safariextension/icons', filter: 'isFile',
+          },
+          {
+            expand: true, flatten: true, src: ['lib/jquery-2.1.3.min.js', 'lib/codecov.js', 'lib/codecov.css'], dest: 'tmp/safari/codecov.safariextension',
+          },
+        ],
+      },
     },
 
     concat: {
       chrome: {
-        files: {'tmp/chrome/lib/codecov.js': ['src/chrome/chrome.js', 'tmp/chrome/lib/codecov.js']}
+        files: { 'tmp/chrome/lib/codecov.js': ['src/chrome/chrome.js', 'tmp/chrome/lib/codecov.js'] },
       },
       firefox: {
-        files: {'tmp/firefox/data/codecov.js': ['src/firefox/firefox.js', 'tmp/firefox/data/codecov.js']}
+        files: { 'tmp/firefox/data/codecov.js': ['src/firefox/firefox.js', 'tmp/firefox/data/codecov.js'] },
       },
       safari: {
-        files: {'tmp/safari/codecov.safariextension/codecov.js': ['src/safari/safari.js', 'tmp/safari/codecov.safariextension/codecov.js']}
-      }
+        files: { 'tmp/safari/codecov.safariextension/codecov.js': ['src/safari/safari.js', 'tmp/safari/codecov.safariextension/codecov.js'] },
+      },
     },
 
     shell: {
@@ -101,19 +121,19 @@ module.exports = function(grunt) {
         command: [
           'cd tmp/chrome && zip -r ../../dist/chrome.zip .',
           '"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --pack-extension="/Users/peak/Documents/codecov/browser-extension/tmp/chrome" --pack-extension-key="/Users/peak/.ssh/chrome.pem"',
-          'mv ../chrome.crx ../../dist/chrome.crx'
-          ].join(' && ')
+          'mv ../chrome.crx ../../dist/chrome.crx',
+        ].join(' && '),
       },
       firefox: {
         command: [
           'cd tmp/firefox',
           '../../node_modules/jpm/bin/jpm xpi',
-          'mv hello@codecov.io-1.0.9.xpi ../../dist/firefox.xpi'
-          ].join(' && ')
+          'mv hello@codecov.io-1.0.9.xpi ../../dist/firefox.xpi',
+        ].join(' && '),
       },
       opera: {
-        command: 'cp dist/chrome.crx dist/opera.nex'
-      }
+        command: 'cp dist/chrome.crx dist/opera.nex',
+      },
     },
 
     // -------
@@ -123,23 +143,28 @@ module.exports = function(grunt) {
       test: {
         options: {
           port: 3000,
-          hostname: '0.0.0.0'
-        }
+          hostname: '0.0.0.0',
+        },
       },
       coverage: {
         options: {
           port: 4000,
           hostname: '0.0.0.0',
           middleware: [
-            function(req, res, next) {
+            function (req, res, next) {
               const fs = require('fs');
-              try { fs.mkdirSync('coverage'); } catch (error) {}
-              try { fs.mkdirSync(`coverage/${req.url.slice(1)}`); } catch (error1) {}
-              return req.on('data', json => fs.writeFileSync(`coverage/${req.url.slice(1)}/coverage.json`, json.toString()));
-            }
-          ]
-        }
-      }
+
+              try {
+                fs.mkdirSync('coverage');
+              } catch (error) {}
+              try {
+                fs.mkdirSync(`coverage/${req.url.slice(1)}`);
+              } catch (error1) {}
+              return req.on('data', (json) => fs.writeFileSync(`coverage/${req.url.slice(1)}/coverage.json`, json.toString()));
+            },
+          ],
+        },
+      },
     },
 
     curl: {
@@ -154,17 +179,18 @@ module.exports = function(grunt) {
       // Bitbucket
       'test/bitbucket/test_src.html': 'https://bitbucket.org/osallou/go-docker/src/8c304f3171716b23f78dc6c1f6541b290a43386b/godocker/godscheduler.py',
       'test/bitbucket/test_commits.html': 'https://bitbucket.org/osallou/go-docker/commits/33a5c94583baf1fcc98db2c295c97283255163c1',
-      'test/bitbucket/test_tree.html': 'https://bitbucket.org/osallou/go-docker/src/8c304f3171716b23f78dc6c1f6541b290a43386b/godocker/?at=master'
+      'test/bitbucket/test_tree.html': 'https://bitbucket.org/osallou/go-docker/src/8c304f3171716b23f78dc6c1f6541b290a43386b/godocker/?at=master',
     },
-      // Gitlab
+    // Gitlab
 
     dom_munger: {
-      all: {  // excuted first
+      all: { // excuted first
         src: 'test/**/*.html',
         options: {
           remove: ['link', 'script'],
-          prepend: {selector:'body', html:'<div id="mocha"></div>'},
-          append: {selector:'head', html:`<link rel="stylesheet" href="../mocha.css" />
+          prepend: { selector: 'body', html: '<div id="mocha"></div>' },
+          append: {
+            selector: 'head', html: `<link rel="stylesheet" href="../mocha.css" />
 <script src="../mocha.js"></script>
 <script src="../chai.js"></script>
 <script src="../bridge.js"></script>
@@ -172,19 +198,20 @@ module.exports = function(grunt) {
 <script src="../deps.js"></script>
 <script src="../../lib-cov/codecov.js"></script>
 <script src="../../lib-cov/github.js"></script>
-<script src="../../lib-cov/bitbucket.js"></script>`}
-        }
+<script src="../../lib-cov/bitbucket.js"></script>`,
+          },
+        },
       },
-      github_blob: {src: 'test/github/test_blob.html', options: {append: {selector:'body',html:'<script src="test_blob.js"></script>'}}},
-      github_pull: {src: 'test/github/test_pull.html', options: {append: {selector:'body',html:'<script src="test_pull.js"></script>'}}},
-      github_tree: {src: 'test/github/test_tree.html', options: {append: {selector:'body',html:'<script src="test_tree.js"></script>'}}},
-      github_blame: {src: 'test/github/test_blame.html', options: {append: {selector:'body',html:'<script src="test_blame.js"></script>'}}},
-      github_compare: {src: 'test/github/test_compare.html', options: {append: {selector:'body',html:'<script src="test_compare.js"></script>'}}},
-      github_compare_split: {src: 'test/github/test_compare_split.html', options: {append: {selector:'body',html:'<script src="test_compare_split.js"></script>'}}},
-      github_commit: {src: 'test/github/test_commit.html', options: {append: {selector:'body',html:'<script src="test_commit.js"></script>'}}},
+      github_blob: { src: 'test/github/test_blob.html', options: { append: { selector: 'body', html: '<script src="test_blob.js"></script>' } } },
+      github_pull: { src: 'test/github/test_pull.html', options: { append: { selector: 'body', html: '<script src="test_pull.js"></script>' } } },
+      github_tree: { src: 'test/github/test_tree.html', options: { append: { selector: 'body', html: '<script src="test_tree.js"></script>' } } },
+      github_blame: { src: 'test/github/test_blame.html', options: { append: { selector: 'body', html: '<script src="test_blame.js"></script>' } } },
+      github_compare: { src: 'test/github/test_compare.html', options: { append: { selector: 'body', html: '<script src="test_compare.js"></script>' } } },
+      github_compare_split: { src: 'test/github/test_compare_split.html', options: { append: { selector: 'body', html: '<script src="test_compare_split.js"></script>' } } },
+      github_commit: { src: 'test/github/test_commit.html', options: { append: { selector: 'body', html: '<script src="test_commit.js"></script>' } } },
 
-      bitbucket_src: {src: 'test/bitbucket/test_src.html', options: {append: {selector:'body',html:'<script src="test_src.js"></script>'}}},
-      bitbucket_tree: {src: 'test/bitbucket/test_tree.html', options: {append: {selector:'body',html:'<script src="test_tree.js"></script>'}}}
+      bitbucket_src: { src: 'test/bitbucket/test_src.html', options: { append: { selector: 'body', html: '<script src="test_src.js"></script>' } } },
+      bitbucket_tree: { src: 'test/bitbucket/test_tree.html', options: { append: { selector: 'body', html: '<script src="test_tree.js"></script>' } } },
     },
 
     mocha: {
@@ -192,12 +219,12 @@ module.exports = function(grunt) {
         options: {
           page: {
             settings: {
-              webSecurityEnabled: false
-            }
+              webSecurityEnabled: false,
+            },
           },
           mocha: {
             ignoreLeaks: false,
-            globals: ['jQuery*', 'codecov']
+            globals: ['jQuery*', 'codecov'],
           },
           urls: [
             // Github
@@ -209,15 +236,15 @@ module.exports = function(grunt) {
             'http://localhost:3000/test/github/test_commit.html',
             // Bitbucket
             'http://localhost:3000/test/bitbucket/test_src.html',
-            'http://localhost:3000/test/bitbucket/test_tree.html'
+            'http://localhost:3000/test/bitbucket/test_tree.html',
             // Gitlab
-            ],
+          ],
           run: false,
           reporter: 'mocha-phantom-coverage-reporter',
-          timeout: 10000
-        }
-      }
-    }
+          timeout: 10000,
+        },
+      },
+    },
   });
 
   // -------------
@@ -236,8 +263,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-coffee');
   grunt.loadNpmTasks('grunt-contrib-connect');
 
-  grunt.registerTask('default',  ['coffee', 'less']);
-  grunt.registerTask('build',    ['default', 'clean', 'copy', 'concat', 'shell']);
-  grunt.registerTask('test',     ['curl', 'dom_munger', 'runTests']);
+  grunt.registerTask('default', ['coffee', 'less']);
+  grunt.registerTask('build', ['default', 'clean', 'copy', 'concat', 'shell']);
+  grunt.registerTask('test', ['curl', 'dom_munger', 'runTests']);
   return grunt.registerTask('runTests', ['coffeecov', 'connect', 'mocha']);
 };

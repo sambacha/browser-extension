@@ -1,7 +1,7 @@
-var storage_get = function(key, cb){
+const storage_get = function (key, cb) {
   cb(localStorage.getItem(key));
 };
-var storage_set = function(key, value, cb){
+const storage_set = function (key, value, cb) {
   localStorage.setItem(key, value);
   cb();
 };

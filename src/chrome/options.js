@@ -4,12 +4,13 @@ function save_options() {
     overlay: document.getElementById('overlay').checked,
     enterprise: document.getElementById('enterprise').value,
     hosts: document.getElementById('hosts').value,
-    debug: document.getElementById('debug').checked
-  }, function() {
+    debug: document.getElementById('debug').checked,
+  }, () => {
     // Update status to let user know options were saved.
-    var status = document.getElementById('status');
+    const status = document.getElementById('status');
+
     status.textContent = 'Options saved.';
-    setTimeout(function() {
+    setTimeout(() => {
       status.textContent = '';
     }, 750);
   });
@@ -17,9 +18,10 @@ function save_options() {
 
 function clear_cache() {
   chrome.storage.local.clear();
-  var status = document.getElementById('cache_status');
+  const status = document.getElementById('cache_status');
+
   status.textContent = 'Cache emptied.';
-  setTimeout(function() {
+  setTimeout(() => {
     status.textContent = '';
   }, 750);
 }
@@ -31,9 +33,11 @@ function restore_options() {
     overlay: true,
     enterprise: '',
     hosts: '',
-    debug: false
-  }, function(items) {
-    if (items['overlay'] === undefined) { items['overlay'] = true; }
+    debug: false,
+  }, (items) => {
+    if (items.overlay === undefined) {
+      items.overlay = true;
+    }
     document.getElementById('overlay').checked = items.overlay;
     document.getElementById('enterprise').value = items.enterprise;
     document.getElementById('hosts').value = items.hosts;
