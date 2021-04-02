@@ -1,38 +1,48 @@
-var click = function (el){
-    var ev = document.createEvent("MouseEvent");
-    ev.initMouseEvent(
-      "click",
-      true /* bubble */, true /* cancelable */,
-      window, null,
-      0, 0, 0, 0, /* coordinates */
-      false, false, false, false, /* modifier keys */
-      0 /*left*/, null
-    );
-    el.dispatchEvent(ev);
+const click = function (el) {
+  const ev = document.createEvent('MouseEvent');
+
+  ev.initMouseEvent(
+    'click',
+    true /* bubble */,
+    true /* cancelable */,
+    window,
+    null,
+    0,
+    0,
+    0,
+    0 /* coordinates */,
+    false,
+    false,
+    false,
+    false /* modifier keys */,
+    0 /* left */,
+    null,
+  );
+  el.dispatchEvent(ev);
 };
 
-var expect = chai.expect;
+const { expect } = chai;
 
-var cache = {
+const cache = {
   overlay: true,
-  enterprise: ''
+  enterprise: '',
 };
 
-function storage_get(key, cb){
+function storage_get(key, cb) {
   cb(cache[key]);
 }
 
-function storage_set(key, value, cb){
+function storage_set(key, value, cb) {
   cache[key] = value;
   cb();
 }
 
-function save_coverage(name){
+function save_coverage(name) {
   // my hack to get coverage
   $.ajax({
-    "url": "http://localhost:4000/"+name,
-    "type": "POST",
-    "contentType": 'application/json',
-    "data": {"coverage": JSON.stringify(_$jscoverage)}
+    url: `http://localhost:4000/${name}`,
+    type: 'POST',
+    contentType: 'application/json',
+    data: { coverage: JSON.stringify(_$jscoverage) },
   });
 }

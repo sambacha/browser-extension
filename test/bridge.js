@@ -1,4 +1,3 @@
-'use strict';
 /*
  * Is injected into the spec runner file
 
@@ -8,21 +7,21 @@
  * http://benalman.com/about/license/
  */
 
-/*global mocha:true, alert:true, window:true */
+/* global mocha:true, alert:true, window:true */
 
-(function() {
+(function () {
   // Send messages to the parent phantom.js process via alert! Good times!!
-  var sendMessage = function sendMessage() {
-    var args = [].slice.call(arguments);
+  const sendMessage = function sendMessage() {
+    const args = [].slice.call(arguments);
+
     alert(JSON.stringify(args));
   };
 
   // Create a listener who'll bubble events from Phantomjs to Grunt
-  var createGruntListener = function createGruntListener(ev, runner) {
-
-    runner.on(ev, function(test, err) {
-      var data = {
-        err: err
+  const createGruntListener = function createGruntListener(ev, runner) {
+    runner.on(ev, (test, err) => {
+      const data = {
+        err,
       };
 
       if (test) {
@@ -31,28 +30,29 @@
       }
 
       if (ev === 'end' && window._$jscoverage) {
-        var cov = {};
-        for(var prop in window._$jscoverage) {
-          var file = window._$jscoverage[prop];
+        const cov = {};
+
+        for (const prop in window._$jscoverage) {
+          const file = window._$jscoverage[prop];
+
           file[0] = file.source;
           cov[prop] = file;
         }
         data.cov = cov;
       }
 
-      sendMessage('mocha.' + ev, data);
-
+      sendMessage(`mocha.${ev}`, data);
     });
   };
 
-  var GruntReporter = function(runner){
+  const GruntReporter = function (runner) {
     // 1.4.2 moved reporters to Mocha instead of mocha
-    var mochaInstance = window.Mocha || window.mocha;
+    const mochaInstance = window.Mocha || window.mocha;
 
     if (!mochaInstance) {
       throw new Error(
         'Mocha was not found, make sure you include Mocha in your HTML ' +
-        'spec file.'
+          'spec file.',
       );
     }
 
@@ -60,7 +60,7 @@
     mochaInstance.reporters.HTML.call(this, runner);
 
     // Create a Grunt listener for each Mocha events
-    var events = [
+    const events = [
       'start',
       'test',
       'test end',
@@ -69,25 +69,25 @@
       'fail',
       'pass',
       'pending',
-      'end'
+      'end',
     ];
 
-    for(var i = 0; i < events.length; i++) {
+    for (let i = 0; i < events.length; i++) {
       createGruntListener(events[i], runner);
     }
-
   };
 
-  var options = window.PHANTOMJS;
+  const options = window.PHANTOMJS;
+
   if (options) {
     // Default mocha options
-    var config = {
+    const config = {
       ui: 'bdd',
       ignoreLeaks: true,
-      reporter: GruntReporter
-    },
-    run = options.run,
-    key;
+      reporter: GruntReporter,
+    };
+    const { run } = options;
+    let key;
 
     if (options) {
       // If options is a string, assume it is to set the UI (bdd/tdd etc)
@@ -113,4 +113,4 @@
     mocha.ui('bdd');
     mocha.reporter('html');
   }
-}());
+})();
