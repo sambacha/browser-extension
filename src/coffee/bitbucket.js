@@ -1,133 +1,165 @@
-class window.Bitbucket extends Codecov
-  get_ref: (href) ->
-    @log('::get_ref')
-    @service = if window.location.hostname is 'bitbucket.org' or @settings.debug_url? then 'bb' else 'bbs'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS103: Rewrite code to no longer use __guard__, or convert again using --optional-chaining
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+window.Bitbucket = class Bitbucket extends Codecov {
+  get_ref(href) {
+    this.log('::get_ref');
+    this.service = (window.location.hostname === 'bitbucket.org') || (this.settings.debug_url != null) ? 'bb' : 'bbs';
 
-    if @page is 'src'
-      return href[6].split('?')[0]
+    if (this.page === 'src') {
+      return href[6].split('?')[0];
 
-    else if @page is 'commits'
-      return href[6].split('?')[0]
+    } else if (this.page === 'commits') {
+      return href[6].split('?')[0];
 
-    else if @page is 'pull-requests'
-      return $('.view-file:first').attr('href')?.split('/')[4]
+    } else if (this.page === 'pull-requests') {
+      return __guard__($('.view-file:first').attr('href'), x => x.split('/')[4]);
+    }
 
-    no  # overlay available
+    return false;  // overlay available
+  }
 
-  prepare: ->
-    @log('::prepare')
-    # add Coverage Toggle
-    $('#editor-container, section.bb-udiff').each ->
-      if $('.aui-button.codecov', @).length is 0
-        $('.secondary>.aui-buttons:first', @)
-          .prepend('''<a href="#" class="aui-button aui-button-light codecov"
-                         title="Requesting coverage from Codecov.io">Coverage loading...</a>''')
+  prepare() {
+    this.log('::prepare');
+    // add Coverage Toggle
+    $('#editor-container, section.bb-udiff').each(function() {
+      if ($('.aui-button.codecov', this).length === 0) {
+        return $('.secondary>.aui-buttons:first', this)
+          .prepend(`<a href="#" class="aui-button aui-button-light codecov"
+title="Requesting coverage from Codecov.io">Coverage loading...</a>`);
+      }
+    });
 
-    yes  # get the coverage
+    return true;  // get the coverage
+  }
 
-  overlay: (res) ->
-    @log('::overlay')
-    self = @
-    $('.codecov.codecov-removable').remove()
+  overlay(res) {
+    this.log('::overlay');
+    const self = this;
+    $('.codecov.codecov-removable').remove();
 
-    report = res?.commit?.report or res?.head?.report
+    const report = __guard__(res != null ? res.commit : undefined, x => x.report) || __guard__(res != null ? res.head : undefined, x1 => x1.report);
 
-    # tree view
-    $('#source-list tr td.dirname').attr('colspan', 5)
-    $('#source-list tr').each ->
-      fp = $('a', @).attr('href')?.split('?')[0].split('/').slice(5).join('/')
-      cov = report?.files?[fp]?.t.c
-      if cov?
-        $('td.size', @)
-          .after("""
-            <td title="Coverage"
-                style="background:linear-gradient(90deg, #{self.bg cov} #{cov}%, white #{cov}%);text-align:right;"
-                class="codecov codecov-removable">
-              #{self.format cov}%
-            </td>""")
-      else
-        # add empty cell
-        $('td.size', @).after("<td style=\"color:#e7e7e7\">n/a</td>")
+    // tree view
+    $('#source-list tr td.dirname').attr('colspan', 5);
+    $('#source-list tr').each(function() {
+      const fp = __guard__($('a', this).attr('href'), x2 => x2.split('?')[0].split('/').slice(5).join('/'));
+      const cov = __guard__(__guard__(report != null ? report.files : undefined, x4 => x4[fp]), x3 => x3.t.c);
+      if (cov != null) {
+        return $('td.size', this)
+          .after(`\
+<td title="Coverage"
+    style="background:linear-gradient(90deg, ${self.bg(cov)} ${cov}%, white ${cov}%);text-align:right;"
+    class="codecov codecov-removable">
+  ${self.format(cov)}%
+</td>`);
+      } else {
+        // add empty cell
+        return $('td.size', this).after("<td style=\"color:#e7e7e7\">n/a</td>");
+      }
+    });
 
 
-    # diff file
-    $('section.bb-udiff').each ->
-      $file = $(@)
-      fp = $file.attr('data-path')
-      data = report?.files?[fp]
-      if data?
-        button = $('.aui-button.codecov', @)
+    // diff file
+    $('section.bb-udiff').each(function() {
+      const $file = $(this);
+      const fp = $file.attr('data-path');
+      const data = __guard__(report != null ? report.files : undefined, x2 => x2[fp]);
+      if (data != null) {
+        const button = $('.aui-button.codecov', this)
                   .attr('title', 'Toggle Codecov')
-                  .text("Coverage #{self.format data.t.c}%")
-                  .attr('data-codecov-url', "#{self.settings.urls[self.urlid]}/#{self.service}/#{self.slug}/src/#{self.ref}/#{fp}")
+                  .text(`Coverage ${self.format(data.t.c)}%`)
+                  .attr('data-codecov-url', `${self.settings.urls[self.urlid]}/${self.service}/${self.slug}/src/${self.ref}/${fp}`)
                   .unbind()
-                  .click(self.toggle_diff)
+                  .click(self.toggle_diff);
 
-        $('.udiff-line.common, .udiff-line.addition', @)
-          .find('a.line-numbers').each ->
-            a = $(@)
-            ln = a.attr('data-tnum')
-            ln = data?.l?[ln]
-            if ln? then a.addClass("codecov codecov-#{self.color ln}")
+        return $('.udiff-line.common, .udiff-line.addition', this)
+          .find('a.line-numbers').each(function() {
+            const a = $(this);
+            let ln = a.attr('data-tnum');
+            ln = __guard__(data != null ? data.l : undefined, x3 => x3[ln]);
+            if (ln != null) { return a.addClass(`codecov codecov-${self.color(ln)}`); }
+        });
 
-      else
-        $file.find('.aui-button.codecov').attr('title', 'File coverage not found').text('Not covered')
+      } else {
+        return $file.find('.aui-button.codecov').attr('title', 'File coverage not found').text('Not covered');
+      }
+    });
 
-    # single file
-    $("#editor-container").each ->
-      $file = $(@)
-      fp = $file.attr('data-path')
-      # find covered file
-      file = report?.files?[fp]
-      filename = fp.split('/').pop()
-      if file?
-        # ... show diff not full file coverage for compare view
-        button = $file.find('.aui-button.codecov')
+    // single file
+    return $("#editor-container").each(function() {
+      const $file = $(this);
+      const fp = $file.attr('data-path');
+      // find covered file
+      const file = __guard__(report != null ? report.files : undefined, x2 => x2[fp]);
+      const filename = fp.split('/').pop();
+      if (file != null) {
+        // ... show diff not full file coverage for compare view
+        const button = $file.find('.aui-button.codecov')
                       .attr('title', 'Toggle Codecov')
-                      .text("Coverage #{self.format file.t.c}%")
+                      .text(`Coverage ${self.format(file.t.c)}%`)
                       .attr('data-codecov-url', '[TODO]')
                       .unbind()
-                      .click(self.toggle_coverage)
+                      .click(self.toggle_coverage);
 
-        # overlay coverage
-        for ln, cov of file['l']
-          $("a[name='#{filename}-#{ln}']", $file).addClass("codecov codecov-#{self.color(cov)}")
+        // overlay coverage
+        for (let ln in file['l']) {
+          const cov = file['l'][ln];
+          $(`a[name='${filename}-${ln}']`, $file).addClass(`codecov codecov-${self.color(cov)}`);
+        }
 
-        # toggle blob/blame
-        if self.settings.overlay and self.page in ['src', '']
-          button.trigger('click')
+        // toggle blob/blame
+        if (self.settings.overlay && ['src', ''].includes(self.page)) {
+          return button.trigger('click');
+        }
 
-      else
-        $file.find('.aui-button.codecov')
+      } else {
+        return $file.find('.aui-button.codecov')
              .attr('title', 'File coverage not found')
              .attr('data-codecov-url', '[TODO]')
-             .text('Not covered')
+             .text('Not covered');
+      }
+    });
+  }
 
-  toggle_coverage: (e) ->
-    e.preventDefault()
-    if e.altKey or e.shiftKey
-      window.location = $(@).attr('data-codecov-url')
+  toggle_coverage(e) {
+    e.preventDefault();
+    if (e.altKey || e.shiftKey) {
+      return window.location = $(this).attr('data-codecov-url');
 
-    else if $('.codecov.codecov-on:first').length == 0
-      $('.codecov').addClass('codecov-on')
-      $(@).addClass('aui-button-light')
+    } else if ($('.codecov.codecov-on:first').length === 0) {
+      $('.codecov').addClass('codecov-on');
+      return $(this).addClass('aui-button-light');
 
-    else
-      $('.codecov').removeClass('codecov-on')
-      $(@).removeClass('aui-button-light')
+    } else {
+      $('.codecov').removeClass('codecov-on');
+      return $(this).removeClass('aui-button-light');
+    }
+  }
 
-  error: (status, reason) ->
-    if status is 401
-      $('.aui-button.codecov').text("Please login at Codecov")
+  error(status, reason) {
+    if (status === 401) {
+      return $('.aui-button.codecov').text("Please login at Codecov")
                               .addClass('aui-button-primary')
                               .attr('title', 'Login to view coverage by Codecov')
-                              .click -> window.location = "https://codecov.io/login/github?redirect=#{escape window.location.href}"
+                              .click(() => window.location = `https://codecov.io/login/github?redirect=${escape(window.location.href)}`);
 
-    else if status is 404
-      $('.aui-button.codecov').text("No coverage")
-                              .attr('title', 'Coverage not found')
-      # $('.commit.codecov .sha-block').addClass('tooltipped tooltipped-n').text('No coverage').attr('title', 'Coverage not found')
-    else
-      $('.aui-button.codecov').text("Coverage error")
-                              .attr('title', 'There was an error loading coverage. Sorry')
-      # $('.commit.codecov .sha-block').addClass('tooltipped tooltipped-n').text('Coverage Error').attr('title', 'There was an error loading coverage. Sorry')
+    } else if (status === 404) {
+      return $('.aui-button.codecov').text("No coverage")
+                              .attr('title', 'Coverage not found');
+      // $('.commit.codecov .sha-block').addClass('tooltipped tooltipped-n').text('No coverage').attr('title', 'Coverage not found')
+    } else {
+      return $('.aui-button.codecov').text("Coverage error")
+                              .attr('title', 'There was an error loading coverage. Sorry');
+    }
+  }
+};
+      // $('.commit.codecov .sha-block').addClass('tooltipped tooltipped-n').text('Coverage Error').attr('title', 'There was an error loading coverage. Sorry')
+
+function __guard__(value, transform) {
+  return (typeof value !== 'undefined' && value !== null) ? transform(value) : undefined;
+}
